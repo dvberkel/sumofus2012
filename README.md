@@ -4,6 +4,9 @@ SumOfUs 2012
 This project provides a game as played at the Radboud University
 Mathematics Competion of 2012.
 
+Want to follow where we are working on? Checkout the 
+[Trello Board](https://trello.com/board/sumofus/4fe0b30a330f637e090a6dee).
+
 Frameworks
 ----------
 
