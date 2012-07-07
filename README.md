@@ -17,7 +17,7 @@ The following frameworks are used in this project.
 * [Backbone](http://backbonejs.org/ "Backbone documentation page")
   is a Model-View-Controller (MVC) framework which will decouple the
   domain from the different representation.
-* [Raphael(http://raphaeljs.com/ "Raphael Homepage") A graphics
+* [Raphael](http://raphaeljs.com/ "Raphael Homepage") A graphics
   library based on Scalable Vector Graphics 
   ([SVG](http://en.wikipedia.org/wiki/Scalable_Vector_Graphics "Wikipedia on Scalable Vector Graphics")).
 
