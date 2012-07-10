@@ -34,6 +34,11 @@ beforeEach(function() {
             var actual = this.actual;
 	    var highlighted = actual.get("highlighted");
 	    return highlighted === expectedHighlight;
-        }
+        },
+
+	toBeOccupied : function(){
+	    var actual = this.actual;
+	    return actual.isOccupied();
+	}
     });
 });

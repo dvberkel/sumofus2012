@@ -27,11 +27,23 @@ describe("a Car", function(){
 
     it("should be movable", function(){
         var car = new SumOfUs.Car;
-	var node = new SumOfUs.TrackNode({directions : ["up","down"]});
-	car.moveTo(node,"up",2);
-	expect(car).toBeAt(node);
+	var node1 = new SumOfUs.TrackNode({directions : ["A"]});
+	var node2 = new SumOfUs.TrackNode({directions : ["B"]});
+	car.moveTo(node1,"A",2);
+	expect(car).toBeAt(node1);
 	expect(car).toHaveSpeed(2);
-	expect(car).toBeGoingInDirection("up");
+	expect(car).toBeGoingInDirection("A");
+	expect(node1).toBeOccupied();
+
+	car.moveTo(node2,"B",3)
+	expect(car).toBeAt(node2);
+	expect(node1).not.toBeOccupied();
+        expect(node2).toBeOccupied();
     });
 
+    it("shouldn't be able to move to occupied positions", function(){
+        var car = new SumOfUs.Car;
+	var node = new SumOfUs.TrackNode({occupied : false});
+	expect( (function(){car.moveTo(node1)}) ).toThrow();
+    });
 });
