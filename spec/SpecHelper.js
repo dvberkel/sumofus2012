@@ -39,6 +39,17 @@ beforeEach(function() {
 	toBeOccupied : function(){
 	    var actual = this.actual;
 	    return actual.isOccupied();
+	},
+
+	toBeConnectedTo : function(node, inDir, outDir){
+	    var actual = this.actual;
+	    var links = actual.links(inDir);
+	    for each (link in links){
+	        if( link.node === node && link.direction === outDir){
+		    return true;
+		}
+	    }
+	    return false;
 	}
     });
 });
