@@ -25,6 +25,47 @@ describe("a Car", function(){
 	expect(car).not.toBeHighlighted();
     });
 
+    it("should be able to increase speed",function(){
+	var speed = car.get("speed");
+	var acceleration = car.get("acceleration");
+
+	car.increaseSpeed();
+
+	expect(car).toHaveSpeed(speed + acceleration);
+    });
+
+    it("should be not able to increase speed beyond maximum speed",function(){
+	var maximumSpeed = car.get("maxSpeed");
+	car.set({ "speed" : maximumSpeed });
+
+	car.increaseSpeed();
+
+	expect(car).toHaveSpeed(maximumSpeed);
+    });
+
+    it("should be able to decrease speed",function(){
+	car.set({"speed" : 4});
+	var targetSpeed = 1;
+
+	car.decreaseSpeedTo(targetSpeed);
+
+	expect(car).toHaveSpeed(targetSpeed);
+    });
+
+    it("should be not able to decrease speed below zero",function(){
+	car.decreaseSpeedTo(-1);
+
+	expect(car).toHaveSpeed(0);
+    });
+
+    it("should be not able to incease speed by decreasing to a higher value",function(){
+	var originalSpeed = car.get("speed");
+	
+	car.decreaseSpeedTo(4);
+
+	expect(car).toHaveSpeed(originalSpeed);
+    });
+
     it("should be movable", function(){
 	var node1 = new SumOfUs.TrackNode({directions : ["A"]});
 	var node2 = new SumOfUs.TrackNode({directions : ["B"]});
