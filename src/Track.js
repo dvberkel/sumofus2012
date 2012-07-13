@@ -73,7 +73,15 @@
     });
 
     var TrackSegment = Backbone.Model.extend({
+        //A note on creating new TrackSegments:
+	//TrackSegments should have end points to connect them to other segments.
+	//Each endpoint should have the following atributes
+	//  * leavingDirs, a list of all directions from which you can leave the segment
+	//  * incomingDir, the direction in which you enter the segment
+	//  * nodes, a list of the the nodes in the endpoint. nodes[0] should be the
+	//           left most one (when viewed from inside the segment).
         initialize : function(type, args){
+	    this.set("type",type);
 	    if(type == "road"){
 	        this.createAsRoad(args);
 	    } else if(type == "crossing"){
@@ -191,6 +199,32 @@
     });
 
     var Track = Backbone.Model.extend({
+        initialize : function (){
+	    this.set("segments",[]);
+	    this.set("nonPlayerCars", []);
+	},
+
+	addSegment : function(type, args){
+	    var segment = new TrackSegment(type,args);
+	    var segments = this.get("segments");
+	    segments.push(segment);
+	    this.set("segments",segments);
+	    return segment;
+	},
+
+	connectSegments : function(endpoint1, endpoint2){
+	    var size = endpoint1.nodes.length;
+	    if( endpoint2.nodes.length != size){
+	        throw "endpoints not of the same size";
+	    }
+	    for(var i = 0; i < size; i++){
+	        endpoint1.nodes[i].connect(endpoint2.nodes[size-1-i],
+		                           endpoint1.leavingDirs,
+					   endpoint2.incomingDir,
+					   endpoint2.leavingDirs,
+					   endpoint1.incomingDir);
+	    }
+	}
     });
 
     SumOfUs.TrackNode = TrackNode;
