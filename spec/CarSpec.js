@@ -10,15 +10,15 @@ describe("a Car", function(){
 	expect(car).toHaveAcceleration(1);
 	expect(car).not.toHaveADefinedPosition();
 	expect(car).not.toHaveADefinedDirection();
-	expect(car).toBeHighlighted(false);
+	expect(car).not.toBeHighlighted();
     });
 
     it("should be highlightable", function(){
         var car = new SumOfUs.Car;
 	car.changeHighlight(true);
-	expect(car).toBeHighlighted(true);
+	expect(car).toBeHighlighted();
 	car.changeHighlight(false);
-	expect(car).toBeHighlighted(false);
+	expect(car).not.toBeHighlighted();
     });
 
     it("should be movable", function(){

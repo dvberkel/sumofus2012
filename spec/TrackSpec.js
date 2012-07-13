@@ -13,9 +13,9 @@ describe("a TrackNode", function() {
     it("should be highlightable", function(){
         var node = new SumOfUs.TrackNode;
 	node.changeHighlight(true);
-	expect(node).toBeHighlighted(true);
+	expect(node).toBeHighlighted();
 	node.changeHighlight(false);
-	expect(node).toBeHighlighted(false);
+	expect(node).not.toBeHighlighted();
     });
 
     it("should be connectable to other nodes", function(){
