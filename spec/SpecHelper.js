@@ -1,19 +1,55 @@
 beforeEach(function() {
     this.addMatchers({
-	toBeAt: function(expectedPosition) {
-	    var ball = this.actual;
-	    var position = ball.get("position");
-	    return position.x === expectedPosition.x && position.y === expectedPosition.y;
+	toBeAt : function(expectedPosition) {
+	    var actual = this.actual;
+	    var position = actual.get("position");
+	    return position === expectedPosition;
 	},
-	toHaveVelocity: function(expectedVelocity){
-	    var ball = this.actual;
-	    var velocity = ball.get("velocity");
-	    return velocity.vx === expectedVelocity.vx && velocity.vy === expectedVelocity.vy;
+
+	toBeGoingInDirection : function(expectedDirection) {
+	    var actual = this.actual;
+	    var direction = actual.get("direction");
+	    return direction === expectedDirection;
 	},
-        toBeOfSize: function(expectedSize) {
-            var paddle = this.actual;
-            var size = paddle.get("size");
-            return size.width === expectedSize.width && size.height === expectedSize.height;
-        }
+
+	toHaveSpeed : function(expectedSpeed){
+	    var actual = this.actual;
+	    var speed = actual.get("speed");
+	    return speed === expectedSpeed;
+	},
+
+	toHaveMaxSpeed : function(expectedMax){
+	    var actual = this.actual;
+	    var maxSpeed = actual.get("maxSpeed");
+	    return maxSpeed === expectedMax;
+	},
+
+	toHaveAcceleration : function(expectedAcceleration){
+	    var actual = this.actual;
+	    var acceleration = actual.get("acceleration");
+	    return acceleration === expectedAcceleration;
+	},
+
+        toBeHighlighted : function(expectedHighlight) {
+            var actual = this.actual;
+	    var highlighted = actual.get("highlighted");
+	    return highlighted === expectedHighlight;
+        },
+
+	toBeOccupied : function(){
+	    var actual = this.actual;
+	    return actual.isOccupied();
+	},
+
+	toBeConnectedTo : function(node, inDir, outDir){
+	    var actual = this.actual;
+	    var links = actual.links(inDir);
+	    for each (link in links){
+	        if( link.node === node && link.direction === outDir){
+		    return true;
+		}
+	    }
+	    return false;
+	}
     });
 });
