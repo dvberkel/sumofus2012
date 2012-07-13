@@ -8,12 +8,8 @@ describe("a Car", function(){
 	expect(car).toHaveSpeed(0);
 	expect(car).toHaveMaxSpeed(5);
 	expect(car).toHaveAcceleration(1);
-        
-        var pos = car.get("position");
-	var dir = car.get("direction");
-	expect(pos).toBeUndefined();
-	expect(dir).toBeUndefined();
-
+	expect(car).not.toHaveADefinedPosition();
+	expect(car).not.toHaveADefinedDirection();
 	expect(car).toBeHighlighted(false);
     });
 

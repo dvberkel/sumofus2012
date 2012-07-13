@@ -6,6 +6,18 @@ beforeEach(function() {
 	    return position === expectedPosition;
 	},
 
+	toHaveADefinedPosition : function() {
+	    var car = this.actual;
+	    var position = car.get("position");
+	    return position !== jasmine.undefined;
+	},
+
+	toHaveADefinedDirection : function() {
+	    var car = this.actual;
+	    var direction = car.get("direction");
+	    return direction !== jasmine.undefined;
+	},
+
 	toBeGoingInDirection : function(expectedDirection) {
 	    var actual = this.actual;
 	    var direction = actual.get("direction");
