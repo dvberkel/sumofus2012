@@ -208,4 +208,47 @@ describe("a TrackSegment", function() {
 });
 
 describe("a Track", function (){
+    var track;
+
+    beforeEach(function(){
+        track = new SumOfUs.Track();
+    });
+
+    it("should have correct defaults", function(){
+        expect(track.get("segments")).toEqual([]);
+	expect(track.get("nonPlayerCars")).toEqual([]);
+    });
+
+    it("can have segments added to it", function(){
+        var road = track.addSegment("road", {length : 5,width : 4});
+	var crossing = track.addSegment("crossing", {height : 3, width : 4});
+	var segments = track.get("segments")
+
+	expect(segments).toContain(road);
+	//For reasons I can't understand the statement below causes an infinite loop.
+	//expect(segments).toContain(crossing);
+	expect(segments[1]).toEqual(crossing);
+    });
+
+    it("should be able to connect segments together", function(){
+        var road = track.addSegment("road", {length : 5,width : 4});
+	var crossing = track.addSegment("crossing", {height : 3, width : 4});
+	var one = road.get("endPoints").one;
+	var south = crossing.get("endPoints").south;
+  
+	track.connectSegments(one,south);
+	for(var i = 0; i < 4; i++){
+	    for each(dir in one.leavingDirs){
+	        expect(one.nodes[i]).toBeConnectedTo(south.nodes[3-i],dir,south.incomingDir);
+	    }
+	    for each(dir in south.leavingDirs){
+	        expect(south.nodes[i]).toBeConnectedTo(one.nodes[3-i],dir,one.incomingDir);
+	    }
+	}       
+
+	expect((function(){
+	            track.connectSegments(road.get("endPoints").two,
+		                          crossing.get("endPoints").west);
+	        })).toThrow();
+    });
 });
