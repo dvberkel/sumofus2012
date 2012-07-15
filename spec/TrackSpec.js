@@ -249,4 +249,77 @@ describe("a Track", function (){
 		                          crossing.get("endPoints").west);
 	        })).toThrow();
     });
+
+    it("should be able to find paths", function(){
+        var track = new SumOfUs.Track();
+	var road = track.addSegment("road", {length : 10, width : 4});
+	var crossing = track.addSegment("crossing", {height : 4, width : 4});
+	var roadNodes = road.get("nodes");
+	var crossingNodes = crossing.get("nodes");
+	track.connectSegments(road.get("endPoints").one,crossing.get("endPoints").east);
+	
+	track.connectSegments(road.get("endPoints").two,crossing.get("endPoints").south);
+
+	var reachableNodes = track.getReachableNodes(roadNodes[1][1],"one->two",4);
+	expect(reachableNodes.length).toEqual(16);
+	window.a = roadNodes;
+	window.b = reachableNodes;
+
+        //coding around expect().toContain
+	var foundA = false;
+	var foundB = false;
+	var foundC = false;
+	var foundD = false;
+	var foundE = false;
+	var foundF = false;
+
+	for each(item in reachableNodes){
+	    expect(item.direction).toEqual("one->two");
+	    if(item.node == roadNodes[5][1] && item.speed == 4){
+	        foundA = true;
+	    }
+	    if(item.node == roadNodes[3][2] && item.speed == 3){
+	        foundB = true;
+	    }
+	    if(item.node == roadNodes[1][1] && item.speed == 0){
+	        foundC = true;
+	    }
+	    if(item.node == roadNodes[0][1]){
+	        foundD = true;
+	    }
+	    if(item.node == roadNodes[6][1]){
+	        foundE = true;
+	    }
+	    if(item.node == roadNodes[5][2]){
+	        foundF = true;
+	    }
+	}
+	expect(foundA).toEqual(true);
+	expect(foundB).toEqual(true);
+	expect(foundC).toEqual(true);
+	expect(foundD).toEqual(false);
+	expect(foundE).toEqual(false);
+	expect(foundF).toEqual(false);
+
+
+	reachableNodes = track.getReachableNodes(crossingNodes[1][1],"south",3);
+	expect(reachableNodes.length).toEqual(19);
+	foundA = false;
+	foundB = false;
+	foundC = false;
+	for each(item in reachableNodes){
+	    if(item.node == roadNodes[0][2] && item.speed == 3){
+	        foundA = true;
+	    }
+	    if(item.node == roadNodes[9][0] && item.speed == 3){
+	        foundB = true;
+	    }
+	    if(item.node == crossingNodes[1][0] && item.speed == 1){
+	        foundC = true;
+	    }
+	}
+	expect(foundA).toEqual(true);
+	expect(foundB).toEqual(true);
+	expect(foundC).toEqual(true);
+    });
 });

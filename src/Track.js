@@ -224,6 +224,29 @@
 					   endpoint2.leavingDirs,
 					   endpoint1.incomingDir);
 	    }
+	},
+
+	getReachableNodes : function(startingNode, startingDirection, speed){
+	    var res = [{node : startingNode, direction : startingDirection, speed : 0}];
+	    var current = 0;
+
+	    while(current < res.length && res[current].speed < speed){
+	        var links = res[current].node.links(res[current].direction);
+		for each(link in links){
+		    var visited = false;
+		    for each(item in res){
+		        if(item.node == link.node){
+			    visited = true;
+			    break;
+			}
+		    }
+		    if(!visited){
+		        res.push({node : link.node, direction : link.direction, speed : res[current].speed+1});
+		    }
+		}
+		current +=1;
+	    }
+	    return res;
 	}
     });
 

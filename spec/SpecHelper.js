@@ -66,6 +66,7 @@ beforeEach(function() {
 	    var trackNode = this.actual;
 	    var actualNumberOfConnections = trackNode.get("connections").length;
 	    return actualNumberOfConnections === expectedNumberOfConnections;
-	}
+	},
+
     });
 });
