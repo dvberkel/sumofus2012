@@ -28,10 +28,8 @@ describe("a TrackNode", function() {
 	node1.connect(node3,["A"], "E", ["E"], "B");
 	node1.connect(node4,["B"], "F", ["F"], "A");
 
-	var connections1 = node1.get("connections");
-	var connections2 = node2.get("connections");
-	expect(connections1.length).toEqual(4);
-	expect(connections2.length).toEqual(1);
+	expect(node1).toHaveNConnections(4);
+	expect(node2).toHaveNConnections(1);
 
 	var links1A = node1.links("A");
 	var links1B = node1.links("B");
