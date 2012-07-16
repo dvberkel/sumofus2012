@@ -29,6 +29,12 @@
 
 	addConnection : function(node, inDir, outDir){
 	    var connections = this.get("connections");
+            if( this.get("directions").indexOf(inDir) === -1){
+                throw "Invalid inDir";
+            }
+            if( node.get("directions").indexOf(outDir) === -1){
+                throw "Invalid outDir";
+            }
 	    connections.push({ node : node, 
 	                       inDir : inDir,
 			       outDir : outDir 
@@ -37,26 +43,24 @@
 
 	},
 
-	connect : function(otherNode, inDirs, outDir, otherInDirs, otherOutDir){
+        connectTo: function(otherNode){
+            var thisNode = this;
+            return { along : function(inDir, outDir){
+                         if(outDir == undefined){
+                             outDir = inDir;
+                         }
+                         thisNode.addConnection(otherNode,inDir,outDir);
+                         
+                   }};
+        },
+
+	connectTwoWay : function(otherNode, inDirs, outDir, otherInDirs, otherOutDir){
 	    var directions = this.get("directions");
 	    var otherDirections = otherNode.get("directions");
-	    if(otherDirections.indexOf(outDir) === -1){
-	        throw "Invalid outDir";
-	    }
-	    if(directions.indexOf(otherOutDir) === -1){
-	        throw "Invalid otherOutDir";
-	    }
-
 	    for each (dir in inDirs){
-	        if(directions.indexOf(dir) === -1){
-		    throw "Invalid inDir";
-		}
 	        this.addConnection(otherNode, dir, outDir);
 	    }
 	    for each (dir in otherInDirs){
-	        if(otherDirections.indexOf(dir) === -1){
-		    throw "Invalid otherInDir";
-		}
 	        otherNode.addConnection(this, dir, otherOutDir);
             }
 	},
@@ -108,14 +112,14 @@
 	    for(var i = 0; i < length; i++){
 	        for(var j = 0; j < width; j++){
 		    if(i < length - 1){
-		        nodes[i][j].connect(nodes[i+1][j],["one->two"],"one->two",
-		                                          ["two->one"],"two->one");
+		        nodes[i][j].connectTwoWay(nodes[i+1][j],["one->two"],"one->two",
+		                                                ["two->one"],"two->one");
 		    }
 		    if(j < width - 1){
-		        nodes[i][j].connect(nodes[i][j+1],["one->two"],"one->two",
-			                                  ["one->two"],"one->two");
-		        nodes[i][j].connect(nodes[i][j+1],["two->one"],"two->one",
-			                                  ["two->one"],"two->one");
+		        nodes[i][j].connectTwoWay(nodes[i][j+1],["one->two"],"one->two",
+			                                        ["one->two"],"one->two");
+		        nodes[i][j].connectTwoWay(nodes[i][j+1],["two->one"],"two->one",
+			                                        ["two->one"],"two->one");
 		    }
 		}
 	    }
@@ -155,12 +159,12 @@
 	    for(var i = 0; i < height; i++){
 	        for(var j = 0; j < width; j++){
 		    if(i < height - 1){
-		        nodes[i][j].connect(nodes[i+1][j],["north","east","west"],"north",
-		                                          ["east","south","west"],"south");
+		        nodes[i][j].connectTwoWay(nodes[i+1][j],["north","east","west"],"north",
+		                                                ["east","south","west"],"south");
 		    }
 		    if(j < width - 1){
-		        nodes[i][j].connect(nodes[i][j+1],["north","east","south"],"east",
-			                                  ["north","south","west"],"west");
+		        nodes[i][j].connectTwoWay(nodes[i][j+1],["north","east","south"],"east",
+			                                        ["north","south","west"],"west");
 		    }
 		}
 	    }
@@ -218,11 +222,11 @@
 	        throw "endpoints not of the same size";
 	    }
 	    for(var i = 0; i < size; i++){
-	        endpoint1.nodes[i].connect(endpoint2.nodes[size-1-i],
-		                           endpoint1.leavingDirs,
-					   endpoint2.incomingDir,
-					   endpoint2.leavingDirs,
-					   endpoint1.incomingDir);
+	        endpoint1.nodes[i].connectTwoWay(endpoint2.nodes[size-1-i],
+		                                 endpoint1.leavingDirs,
+                                                 endpoint2.incomingDir,
+					         endpoint2.leavingDirs,
+					         endpoint1.incomingDir);
 	    }
 	},
 

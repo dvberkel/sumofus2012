@@ -68,5 +68,36 @@ beforeEach(function() {
 	    return actualNumberOfConnections === expectedNumberOfConnections;
 	},
 
+        //To avoid Jasmine's recursive equality test that is used in toContain, here
+        //are two non recursive variations.
+        //This one matches elements of the list using ==.
+        toContainSomethingEqualTo : function(expectedValue){
+            var list = this.actual;
+            for each(item in list){
+                if(item == expectedValue){
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        //This one will test all elements for the required properties.
+        //Properties are matched with ==
+        toContainSomethingWithProperties : function(expectedProperties){
+            var list = this.actual;
+            for each(item in list){
+                var match = true;
+                for (property in expectedProperties){
+                    if(item[property] != expectedProperties[property]){
+                        match = false;
+                        break;
+                    }
+                }
+                if(match){
+                    return true;
+                }
+            }
+            return false;
+        }
     });
 });
