@@ -16,6 +16,7 @@ describe("a Car", function(){
 	expect(car).not.toHaveADefinedPosition();
 	expect(car).not.toHaveADefinedDirection();
 	expect(car).not.toBeHighlighted();
+	expect(car).not.toBeAnNPC();
     });
 
     it("should be highlightable", function(){
@@ -84,5 +85,32 @@ describe("a Car", function(){
     it("shouldn't be able to move to occupied positions", function(){
 	var node = new SumOfUs.TrackNode({occupied : false});
 	expect( (function(){car.moveTo(node1)}) ).toThrow();
+    });
+
+    it("should have undefined direction when stopping, unless it's an npc", function(){
+        var npcdir = SumOfUs.NPC_DIRECTION;
+	var node1 = new SumOfUs.TrackNode({directions : ["A"]});
+	var node2 = new SumOfUs.TrackNode({directions : ["A"]});
+	var node3 = new SumOfUs.TrackNode({directions : [npcdir]});
+	var node4 = new SumOfUs.TrackNode({directions : [npcdir]});
+        var npcCar = new SumOfUs.Car({npc : true});
+
+	car.moveTo(node1,"A",2);
+	expect(car).toHaveADefinedDirection();
+	car.decreaseSpeedTo(0);
+	expect(car).not.toHaveADefinedDirection();
+	car.moveTo(node2,"A",2);
+	expect(car).toHaveADefinedDirection();
+	car.moveTo(node1,"A",0);
+	expect(car).not.toHaveADefinedDirection();
+
+
+	npcCar.moveTo(node3,npcdir,2);
+	expect(npcCar).toBeGoingInDirection(npcdir);
+	npcCar.decreaseSpeedTo(0);
+	expect(npcCar).toBeGoingInDirection(npcdir);
+	npcCar.moveTo(node4,npcdir,2);
+	npcCar.moveTo(node3,npcdir,0);
+	expect(npcCar).toBeGoingInDirection(npcdir);
     });
 });

@@ -46,6 +46,10 @@ beforeEach(function() {
 	    return this.actual.get("highlighted");
         },
 
+	toBeAnNPC : function() {
+	    return this.actual.get("npc");
+	},
+
 	toBeOccupied : function(){
 	    var actual = this.actual;
 	    return actual.isOccupied();
