@@ -273,6 +273,11 @@
     });
 
     var Track = Backbone.Model.extend({
+        defaults : {
+	    npcMaxSpeed : 5,
+	    npcDelayChance : 0
+	},
+
         initialize : function (){
 	    this.set("segments",[]);
 	    this.set("nonPlayerCars", []);
@@ -325,6 +330,9 @@
 	    while(current < res.length && res[current].speed < speed){
 	        var links = res[current].node.links(res[current].direction);
 		for each(link in links){
+		    if(link.node.isOccupied()){
+		        continue;
+		    }
 		    var visited = false;
 		    for each(item in res){
 		        if(item.node == link.node){
@@ -339,6 +347,38 @@
 		current +=1;
 	    }
 	    return res;
+	},
+
+	addNonPlayerCar : function(node){
+	    var car = new SumOfUs.Car({npc : true, 
+	                               maxSpeed : this.get("npcMaxSpeed"),
+				       delayChance : this.get("npcDelayChance")});
+	    if(node.get("directions").indexOf(NPC_DIRECTION) == -1){
+	        throw "Can't add npc car on node without npc direction";
+	    }
+	    car.moveTo(node, NPC_DIRECTION, this.get("npcMaxSpeed"));
+
+	    var cars = this.get("nonPlayerCars");
+	    cars.push(car);
+	    this.set("nonPlayerCars", cars);
+	},
+
+	advanceNonPlayerCars : function(){
+	    var cars = this.get("nonPlayerCars");
+	    var length = cars.length;
+	    var newPositions = []
+	    for(var i = 0; i < length; i++){
+	        cars[i].increaseSpeed();
+		cars[i].hesitate();
+		var reachableNodes = this.getReachableNodes(cars[i].get("position"),
+		                                                cars[i].get("direction"),
+								cars[i].get("speed"));
+		newPositions.push(reachableNodes[reachableNodes.length-1]);
+	    }
+
+	    for(var i = 0; i < length; i++){
+	        cars[i].moveTo(newPositions[i].node, newPositions[i].direction, newPositions[i].speed);
+	    }
 	}
     });
 

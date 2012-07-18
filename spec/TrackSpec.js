@@ -332,8 +332,9 @@ describe("a Track", function (){
     it("should have correct defaults", function(){
         expect(track.get("segments")).toEqual([]);
 	expect(track.get("nonPlayerCars")).toEqual([]);
+	expect(track.get("npcMaxSpeed")).toEqual(5);
+	expect(track.get("npcDelayChance")).toEqual(0);
     });
-
 
     it("can have segments added to it", function(){
         var road = track.addSegment("road", {length : 5,width : 4});
@@ -477,7 +478,7 @@ describe("a Track", function (){
             for(var i=0; i<7; i++){
                 expect(reachableNodes).toContainSomethingWithProperties({node : nodes[i],
                                                                          direction : dirs[i],
-                                                                         speed : i})
+                                                                         speed : i});
             }
 
         });
@@ -491,12 +492,96 @@ describe("a Track", function (){
                 }
             }
             var reachableNodes = track.getReachableNodes(nodes[0],"A",4);
-            expect(reachableNodes).toContainSomethingWithProperties({node : nodes[4]})
-            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[5]})
-            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[6]})
+            expect(reachableNodes).toContainSomethingWithProperties({node : nodes[4]});
+            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[5]});
+            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[6]});
             
         });
+
+	it("should not pass through occupied nodes", function(){
+            var nodes = [];
+            for(var i=0; i<7;i++){
+                nodes.push(new SumOfUs.TrackNode({directions: ["A"]}));
+                if(i > 0){
+                    nodes[i-1].connectTo(nodes[i]).along("A");
+                }
+            }
+	    nodes[4].changeOccupied(true);
+            var reachableNodes = track.getReachableNodes(nodes[0],"A",6);
+            expect(reachableNodes).toContainSomethingWithProperties({node : nodes[3]});
+            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[4]});
+            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[5]});
+            expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[6]});
+	});
     });
 
+    describe("has functionality for non player cars that", function(){
+	it("can have non-player cars added to it", function(){
+	    track = new SumOfUs.Track({npcMaxSpeed : 4, npcDelayChance : 0.1});
+	    var npcdir = SumOfUs.NPC_DIRECTION;
+	    var node1 = new SumOfUs.TrackNode({directions : [npcdir]});
+	    var node2 = new SumOfUs.TrackNode({directions : [npcdir]});
 
+	    track.addNonPlayerCar(node1);
+	    track.addNonPlayerCar(node2);
+	    var cars = track.get("nonPlayerCars");
+	    for each(car in cars){
+	        expect(car).toBeAnNPC(0);
+		expect(car).toHaveMaxSpeed(4);
+		expect(car).toHaveSpeed(4);
+		expect(car).toHaveDelayChance(0.1);
+		expect(car).toBeGoingInDirection(npcdir);
+	    }
+	    expect(cars[0]).toBeAt(node1);
+	    expect(cars[1]).toBeAt(node2);
+	});
+
+	it("can only have non-player cars added on nodes with the non-player direction", function(){
+	    var npcdir = SumOfUs.NPC_DIRECTION;
+	    var dir = "A";
+	    if(dir == npcdir){
+	        dir = "B";
+	    }
+	    var node = new SumOfUs.TrackNode({directions : [dir]});
+	    expect( (function(){track.addNonPlayerCar(node);}) ).toThrow();
+	});
+
+	it("can't have non-player cars added on occupied positions", function(){
+	    var npcdir = SumOfUs.NPC_DIRECTION;
+	    var node = new SumOfUs.TrackNode({directions : [npcdir]});
+	    node.changeOccupied(true);
+	    expect( (function(){track.addNonPlayerCar(node);}) ).toThrow();
+	});
+
+	it("should properly advance the non-player cars", function(){
+	    track = new SumOfUs.Track({npcMaxSpeed :4,npcDelayChance : 0});
+	    var road = track.addSegment("road",{length : 10, width : 1, npcTraffic : "oneway"});
+	    var nodes = road.get("nodes");
+	    track.connectSegments(road.get("endPoints").one, road.get("endPoints").two);
+
+	    track.addNonPlayerCar(nodes[1][0]);
+	    track.addNonPlayerCar(nodes[4][0]);
+	    track.addNonPlayerCar(nodes[6][0]);
+	    var cars = track.get("nonPlayerCars");
+
+	    track.advanceNonPlayerCars();
+	    track.advanceNonPlayerCars();
+	    track.advanceNonPlayerCars();
+	    expect(cars[0]).toBeAt(nodes[6][0]);
+	    expect(cars[0]).toHaveSpeed(2);
+	    expect(cars[1]).toBeAt(nodes[0][0]);
+	    expect(cars[1]).toHaveSpeed(3);
+	    expect(cars[2]).toBeAt(nodes[3][0]);
+	    expect(cars[2]).toHaveSpeed(1);
+
+	    track.advanceNonPlayerCars();
+	    track.advanceNonPlayerCars();
+	    expect(cars[0]).toBeAt(nodes[1][0]);
+	    expect(cars[0]).toHaveSpeed(2);
+	    expect(cars[1]).toBeAt(nodes[4][0]);
+	    expect(cars[1]).toHaveSpeed(2);
+	    expect(cars[2]).toBeAt(nodes[8][0]);
+	    expect(cars[2]).toHaveSpeed(3);
+	});
+    });
 });

@@ -50,6 +50,10 @@ beforeEach(function() {
 	    return this.actual.get("npc");
 	},
 
+	toHaveDelayChance : function(expectedChance) {
+	    return this.actual.get("delayChance") === expectedChance;
+	},
+
 	toBeOccupied : function(){
 	    var actual = this.actual;
 	    return actual.isOccupied();

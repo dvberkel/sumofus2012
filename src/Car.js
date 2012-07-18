@@ -7,7 +7,8 @@
 	    position : undefined,
 	    direction : undefined,
 	    highlighted  : false,
-	    npc : false
+	    npc : false,
+	    delayChance : 0
 	},
 
 	increaseSpeed : function(){
@@ -49,6 +50,12 @@
 	    this.set("direction", direction);
 	    this._changeSpeedTo(speed);
 	    position.changeOccupied(true);
+	},
+
+	hesitate : function(){
+	    if(Math.random() < this.get("delayChance")){
+	        this._changeSpeedWith(-1);
+	    }
 	},
 
         changeHighlight : function(setting){

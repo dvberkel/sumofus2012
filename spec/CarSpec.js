@@ -17,6 +17,7 @@ describe("a Car", function(){
 	expect(car).not.toHaveADefinedDirection();
 	expect(car).not.toBeHighlighted();
 	expect(car).not.toBeAnNPC();
+	expect(car).toHaveDelayChance(0);
     });
 
     it("should be highlightable", function(){
@@ -112,5 +113,39 @@ describe("a Car", function(){
 	npcCar.moveTo(node4,npcdir,2);
 	npcCar.moveTo(node3,npcdir,0);
 	expect(npcCar).toBeGoingInDirection(npcdir);
+    });
+
+    it("should be able to hesitate", function(){
+        car = new SumOfUs.Car({delayChance : 0, speed : 5});
+        car.hesitate();
+        car.hesitate();
+        car.hesitate();
+        expect(car).toHaveSpeed(5);
+
+        car = new SumOfUs.Car({delayChance : 1, speed : 5});
+        car.hesitate();
+        car.hesitate();
+        car.hesitate();
+        expect(car).toHaveSpeed(2);
+        car.hesitate();
+        car.hesitate();
+        car.hesitate();
+        expect(car).toHaveSpeed(0);
+
+        car = new SumOfUs.Car({delayChance : 0.5, speed : 5});
+        var count4 = 0;
+        var count5 = 0;
+        for(var i = 0; i < 1000; i++){
+            car.hesitate();
+            if(car.get("speed") == 4){
+                count4++;
+            } else if(car.get("speed") == 5){
+                count5++;
+            }
+            car.increaseSpeed();
+        }
+        expect(count4+count5).toEqual(1000);
+        expect(count4).toBeGreaterThan(400);
+        expect(count5).toBeGreaterThan(400);
     });
 });
