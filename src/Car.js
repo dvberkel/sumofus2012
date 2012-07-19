@@ -6,8 +6,13 @@
 	    acceleration : 1,
 	    position : undefined,
 	    direction : undefined,
+	    highlighted  : false,
+	    npc : false,
+	    delayChance : 0
+	},
 
-	    highlighted  : false
+	initialize : function(){
+	    this.set("passedCheckpoints",[]);
 	},
 
 	increaseSpeed : function(){
@@ -24,6 +29,11 @@
 	    var resultSpeed = Math.max(Math.min(targetSpeed, this.get("maxSpeed")), 0);
 
 	    this.set({"speed" : resultSpeed});
+	    if( resultSpeed == 0 && !this.get("npc") ){
+	        //undefined direction represents standing still so the car can turn around.
+		//npc cars should not turn around and just stick to the track.
+	        this.set({"direction" : undefined});
+	    }
 	},
 
 	decreaseSpeedTo : function(targetSpeed) {
@@ -32,7 +42,7 @@
 	    this._changeSpeedTo(resultSpeed);
 	},
 
-	moveTo : function(position, direction, speed){
+	moveTo : function(position, direction, speed, checkpoints){
 	    var currentPos = this.get("position");
 	    if(currentPos != undefined){
 	        currentPos.changeOccupied(false);
@@ -42,8 +52,19 @@
 	    }
 	    this.set("position", position);
 	    this.set("direction", direction);
-	    this.set("speed", speed);
+	    this._changeSpeedTo(speed);
 	    position.changeOccupied(true);
+
+	    if(checkpoints != undefined){
+	        var passedCheckpoints = this.get("passedCheckpoints");
+		this.set("passedCheckpoints", passedCheckpoints.concat(checkpoints));
+	    }
+	},
+
+	hesitate : function(){
+	    if(Math.random() < this.get("delayChance")){
+	        this._changeSpeedWith(-1);
+	    }
 	},
 
         changeHighlight : function(setting){

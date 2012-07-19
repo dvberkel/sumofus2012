@@ -5,6 +5,8 @@
     //They consist of multiple nodes, and can be connected together.
     //Tracks represent the whole track, they consist of several segments.
 
+    const NPC_DIRECTION = "npc"
+
     var TrackNode = Backbone.Model.extend({
         defaults : { occupied : false },
 
@@ -35,10 +37,17 @@
             if( node.get("directions").indexOf(outDir) === -1){
                 throw "Invalid outDir";
             }
-	    connections.push({ node : node, 
-	                       inDir : inDir,
-			       outDir : outDir 
-			     });
+	    if( (inDir == NPC_DIRECTION || outDir == NPC_DIRECTION) && inDir != outDir){
+	        throw "Can't connect npc and player directions";
+	    }
+	    if(inDir == NPC_DIRECTION){
+	        for each(item in connections){
+		    if( item.inDir == NPC_DIRECTION){
+		        throw "Can't have two exits for npcs";
+		    }
+		}
+	    }
+	    connections.push({ node : node, inDir : inDir, outDir : outDir});
             this.set("connections",connections);
 
 	},
@@ -68,7 +77,7 @@
 	links : function(direction){
 	    var res = [];
 	    for each (con in this.get("connections")){
-	        if(direction === con.inDir || direction === undefined){
+	        if(direction === con.inDir || (direction === undefined && con.inDir != NPC_DIRECTION)){
 		    res.push({ node : con.node, direction : con.outDir });
 		}
 	    }
@@ -80,10 +89,15 @@
         //A note on creating new TrackSegments:
 	//TrackSegments should have end points to connect them to other segments.
 	//Each endpoint should have the following atributes
-	//  * leavingDirs, a list of all directions from which you can leave the segment
-	//  * incomingDir, the direction in which you enter the segment
-	//  * nodes, a list of the the nodes in the endpoint. nodes[0] should be the
+	//  * leavingDirs: a list of all directions from which you can leave the segment
+	//  * incomingDir: the direction in which you enter the segment
+	//  * nodes: a list of the the nodes in the endpoint. nodes[0] should be the
 	//           left most one (when viewed from inside the segment).
+	//  * npcTraffic: what kind of npc traffic the endpoint supports. Should be one of the following:
+	//                   - "in": allows npc traffic to come in along every lane;
+	//                   - "out": allows npc traffic to go out along every lane;
+	//                   - "twoway": allows npc traffic to come in along half the lanes 
+	//                               and go out the other half.
         initialize : function(type, args){
 	    this.set("type",type);
 	    if(type == "road"){
@@ -95,6 +109,7 @@
 	    }
 	},
 
+
 	createAsRoad : function(args){
 	    if(args.length == undefined || args.width == undefined){
 	        throw "No length or width specified";
@@ -102,11 +117,22 @@
 	    var length = args.length;
 	    var width = args.width;
 	    var nodes = [];
+	    var dirs = ["one->two","two->one"];
+	    if(args.npcTraffic == "oneway" || args.npcTraffic == "twoway"){
+	        dirs.push(NPC_DIRECTION);
+	    }
 	    for(var i = 0; i < length; i++){
 	        nodes.push([]);
-		for(var j = 0; j < width; j++){
-		    nodes[i].push(new TrackNode({directions : ["one->two","two->one"]}));
+		if( args.checkpoint != undefined && i == Math.floor(length/2)){
+		    for(var j = 0; j < width; j++){
+			nodes[i].push(new TrackNode({directions : dirs, checkpoint:args.checkpoint}));
+		    }
+		} else {
+		    for(var j = 0; j < width; j++){
+			nodes[i].push(new TrackNode({directions : dirs}));
+		    }
 		}
+		
 	    }
 	    
 	    for(var i = 0; i < length; i++){
@@ -120,6 +146,21 @@
 			                                        ["one->two"],"one->two");
 		        nodes[i][j].connectTwoWay(nodes[i][j+1],["two->one"],"two->one",
 			                                        ["two->one"],"two->one");
+		    }
+		}
+	    }
+
+	    if(args.npcTraffic == "oneway"){//creates npc routes in one -> two direction
+	        for(var i = 0; i < length-1; i++){ 
+		    for(var j = 0; j < width; j++){
+		        nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+		    }
+		}
+	    } else if(args.npcTraffic == "twoway"){
+	        for(var i = 0; i < length-1; i++){
+		    for(var j=0; j < width/2; j++){
+		        nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
+		        nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
 		    }
 		}
 	    }
@@ -140,6 +181,14 @@
 	    for(var i = 0; i < width; i++){
 	        endPoints.two.nodes.push(nodes[length-1][i]);
 	    }
+	    
+	    if(args.npcTraffic == "oneway"){
+	        endPoints.one.npcTraffic = "in";
+		endPoints.two.npcTraffic = "out";
+	    } else if(args.npcTraffic == "twoway"){
+	        endPoints.one.npcTraffic = "twoway";
+		endPoints.two.npcTraffic = "twoway";
+	    }
 	    this.set("endPoints",endPoints);
 	},
 
@@ -150,10 +199,14 @@
 	    var height = args.height;
 	    var width = args.width;
 	    var nodes = [];
+	    var dirs = ["north","east","south","west"];
+	    if(args.npcTraffic == "oneway" || args.npcTraffic == "twoway"){
+	        dirs.push(NPC_DIRECTION);
+	    }
 	    for(var i = 0; i < height; i++){
 	        nodes.push([]);
 		for(var j = 0; j < width; j++){
-		    nodes[i].push(new TrackNode({directions : ["north","east","south","west"]}));
+		    nodes[i].push(new TrackNode({directions : dirs}));
 		}
 	    }
 	    for(var i = 0; i < height; i++){
@@ -168,7 +221,23 @@
 		    }
 		}
 	    }
+
+	    if(args.npcTraffic == "oneway"){//creates west to east npc traffic routes
+	        for(var i = 0; i < height; i++){
+		    for(var j = 0; j < width - 1; j++){
+		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+		    }
+		}
+	    } else if(args.npcTraffic == "twoway"){
+	        for(var i = 0; i < height / 2; i++){
+		    for(var j = 0; j < width - 1; j++){
+		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+		    }
+		}
+	    }
 	    this.set("nodes",nodes);
+
 	    var endPoints = {};
 	    endPoints.north= {};
 	    endPoints.north.leavingDirs = ["north","east","west"];
@@ -198,11 +267,24 @@
 	    for(var i = 0; i < height; i++){
 	        endPoints.west.nodes.push(nodes[i][0]);
 	    }
+
+	    if(args.npcTraffic == "oneway"){
+	        endPoints.east.npcTraffic = "out";
+		endPoints.west.npcTraffic = "in";
+	    } else if(args.npcTraffic == "twoway"){
+	        endPoints.east.npcTraffic = "twoway";
+		endPoints.west.npcTraffic = "twoway";
+	    }
 	    this.set("endPoints",endPoints);
 	}
     });
 
     var Track = Backbone.Model.extend({
+        defaults : {
+	    npcMaxSpeed : 5,
+	    npcDelayChance : 0
+	},
+
         initialize : function (){
 	    this.set("segments",[]);
 	    this.set("nonPlayerCars", []);
@@ -228,15 +310,39 @@
 					         endpoint2.leavingDirs,
 					         endpoint1.incomingDir);
 	    }
+
+	    if(endpoint1.npcTraffic == "out" && endpoint2.npcTraffic == "in"){
+	        for(var i = 0; i < size; i++){
+		    endpoint1.nodes[i].connectTo(endpoint2.nodes[size-1-i]).along(NPC_DIRECTION);
+		}
+	    } else if(endpoint1.npcTraffic == "in" && endpoint2.npcTraffic == "out"){
+	        for(var i = 0; i < size; i++){
+		    endpoint2.nodes[i].connectTo(endpoint1.nodes[size-1-i]).along(NPC_DIRECTION);
+		}
+	    } else if(endpoint1.npcTraffic == "twoway" && endpoint2.npcTraffic == "twoway"){
+	        for(var i = 0; i < size/2; i++){
+		    endpoint1.nodes[size-1-i].connectTo(endpoint2.nodes[i]).along(NPC_DIRECTION);
+		    endpoint2.nodes[size-1-i].connectTo(endpoint1.nodes[i]).along(NPC_DIRECTION);
+		}
+	    } else if(endpoint1.npcTraffic != undefined || endpoint2.npcTraffic != undefined){
+	        throw "Trying to connect endpoints with incompatible npc traffic";
+	    }
+
 	},
 
 	getReachableNodes : function(startingNode, startingDirection, speed){
-	    var res = [{node : startingNode, direction : startingDirection, speed : 0}];
+	    var res = [{node : startingNode,
+	                direction : startingDirection,
+			speed : 0,
+			passedCheckpoints : []}];
 	    var current = 0;
 
 	    while(current < res.length && res[current].speed < speed){
 	        var links = res[current].node.links(res[current].direction);
 		for each(link in links){
+		    if(link.node.isOccupied()){
+		        continue;
+		    }
 		    var visited = false;
 		    for each(item in res){
 		        if(item.node == link.node){
@@ -245,15 +351,58 @@
 			}
 		    }
 		    if(!visited){
-		        res.push({node : link.node, direction : link.direction, speed : res[current].speed+1});
+		        var newCheckpoint = []
+			var checkpoint = link.node.get("checkpoint");
+			if(checkpoint != undefined){
+			    newCheckpoint = [checkpoint];
+			}
+		        res.push({
+			    node : link.node,
+			    direction : link.direction,
+			    speed : res[current].speed+1,
+			    passedCheckpoints : res[current].passedCheckpoints.concat(newCheckpoint)
+			    });
 		    }
 		}
 		current +=1;
 	    }
 	    return res;
+	},
+
+	addNonPlayerCar : function(node){
+	    var car = new SumOfUs.Car({npc : true, 
+	                               maxSpeed : this.get("npcMaxSpeed"),
+				       delayChance : this.get("npcDelayChance")});
+	    if(node.get("directions").indexOf(NPC_DIRECTION) == -1){
+	        throw "Can't add npc car on node without npc direction";
+	    }
+	    car.moveTo(node, NPC_DIRECTION, this.get("npcMaxSpeed"));
+
+	    var cars = this.get("nonPlayerCars");
+	    cars.push(car);
+	    this.set("nonPlayerCars", cars);
+	},
+
+	advanceNonPlayerCars : function(){
+	    var cars = this.get("nonPlayerCars");
+	    var length = cars.length;
+	    var newPositions = []
+	    for(var i = 0; i < length; i++){
+	        cars[i].increaseSpeed();
+		cars[i].hesitate();
+		var reachableNodes = this.getReachableNodes(cars[i].get("position"),
+		                                                cars[i].get("direction"),
+								cars[i].get("speed"));
+		newPositions.push(reachableNodes[reachableNodes.length-1]);
+	    }
+
+	    for(var i = 0; i < length; i++){
+	        cars[i].moveTo(newPositions[i].node, newPositions[i].direction, newPositions[i].speed);
+	    }
 	}
     });
 
+    SumOfUs.NPC_DIRECTION = NPC_DIRECTION;
     SumOfUs.TrackNode = TrackNode;
     SumOfUs.TrackSegment = TrackSegment;
     SumOfUs.Track = Track;
