@@ -7,6 +7,7 @@ describe("a TrackNode", function() {
 	expect(node).not.toBeOccupied();
 	expect(directions).toEqual([]);
 	expect(connections).toEqual([]);
+	expect(node).not.toBeACheckpoint();
     });
 
   
@@ -213,6 +214,14 @@ describe("a TrackSegment", function() {
 
 	    expect(endPoints.one.npcTraffic).toEqual("twoway");
 	    expect(endPoints.two.npcTraffic).toEqual("twoway");
+	});
+
+	it("can have a checkpoint in the middle", function(){
+	    var road = new SumOfUs.TrackSegment("road", {length : 6, width: 4, checkpoint : "A"});
+	    var nodes = road.get("nodes");
+	    for(var i = 0; i < 4; i++){
+	        expect(nodes[3][i]).toBeCheckpoint("A");
+	    }
 	});
     });
 
@@ -512,6 +521,28 @@ describe("a Track", function (){
             expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[4]});
             expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[5]});
             expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[6]});
+	});
+
+	it("should keep track of passed checkpoints", function(){
+	    var node1 = new SumOfUs.TrackNode({directions : "A"});
+	    var node2 = new SumOfUs.TrackNode({directions : "A", checkpoint : "a"});
+	    var node3 = new SumOfUs.TrackNode({directions : "A"});
+	    var node4 = new SumOfUs.TrackNode({directions : "A"});
+	    var node5 = new SumOfUs.TrackNode({directions : "A", checkpoint : "b"});
+	    var node6 = new SumOfUs.TrackNode({directions : "A"});
+	    node1.connectTo(node2).along("A");
+	    node2.connectTo(node3).along("A");
+	    node3.connectTo(node4).along("A");
+	    node4.connectTo(node5).along("A");
+	    node5.connectTo(node6).along("A");
+
+            var reachableNodes = track.getReachableNodes(node1,"A",5);
+	    expect(reachableNodes[0].passedCheckpoints).toEqual([]);
+	    expect(reachableNodes[1].passedCheckpoints).toEqual(["a"]);
+	    expect(reachableNodes[2].passedCheckpoints).toEqual(["a"]);
+	    expect(reachableNodes[3].passedCheckpoints).toEqual(["a"]);
+	    expect(reachableNodes[4].passedCheckpoints).toEqual(["a","b"]);
+	    expect(reachableNodes[5].passedCheckpoints).toEqual(["a","b"]);
 	});
     });
 

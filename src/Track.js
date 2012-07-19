@@ -123,9 +123,16 @@
 	    }
 	    for(var i = 0; i < length; i++){
 	        nodes.push([]);
-		for(var j = 0; j < width; j++){
-		    nodes[i].push(new TrackNode({directions : dirs}));
+		if( args.checkpoint != undefined && i == Math.floor(length/2)){
+		    for(var j = 0; j < width; j++){
+			nodes[i].push(new TrackNode({directions : dirs, checkpoint:args.checkpoint}));
+		    }
+		} else {
+		    for(var j = 0; j < width; j++){
+			nodes[i].push(new TrackNode({directions : dirs}));
+		    }
 		}
+		
 	    }
 	    
 	    for(var i = 0; i < length; i++){
@@ -324,7 +331,10 @@
 	},
 
 	getReachableNodes : function(startingNode, startingDirection, speed){
-	    var res = [{node : startingNode, direction : startingDirection, speed : 0}];
+	    var res = [{node : startingNode,
+	                direction : startingDirection,
+			speed : 0,
+			passedCheckpoints : []}];
 	    var current = 0;
 
 	    while(current < res.length && res[current].speed < speed){
@@ -341,7 +351,17 @@
 			}
 		    }
 		    if(!visited){
-		        res.push({node : link.node, direction : link.direction, speed : res[current].speed+1});
+		        var newCheckpoint = []
+			var checkpoint = link.node.get("checkpoint");
+			if(checkpoint != undefined){
+			    newCheckpoint = [checkpoint];
+			}
+		        res.push({
+			    node : link.node,
+			    direction : link.direction,
+			    speed : res[current].speed+1,
+			    passedCheckpoints : res[current].passedCheckpoints.concat(newCheckpoint)
+			    });
 		    }
 		}
 		current +=1;

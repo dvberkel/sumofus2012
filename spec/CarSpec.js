@@ -18,6 +18,7 @@ describe("a Car", function(){
 	expect(car).not.toBeHighlighted();
 	expect(car).not.toBeAnNPC();
 	expect(car).toHaveDelayChance(0);
+	expect(car).toHavePassedCheckpoints([]);
     });
 
     it("should be highlightable", function(){
@@ -86,6 +87,12 @@ describe("a Car", function(){
     it("shouldn't be able to move to occupied positions", function(){
 	var node = new SumOfUs.TrackNode({occupied : false});
 	expect( (function(){car.moveTo(node1)}) ).toThrow();
+    });
+
+    it("should be able to pass checkpoints", function(){
+	var node1 = new SumOfUs.TrackNode({directions : ["A"]});
+	car.moveTo(node1,"A",2,["a","b","c"]);
+	expect(car).toHavePassedCheckpoints(["a","b","c"]);
     });
 
     it("should have undefined direction when stopping, unless it's an npc", function(){

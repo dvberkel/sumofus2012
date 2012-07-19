@@ -11,6 +11,10 @@
 	    delayChance : 0
 	},
 
+	initialize : function(){
+	    this.set("passedCheckpoints",[]);
+	},
+
 	increaseSpeed : function(){
 	    this._changeSpeedWith(this.get("acceleration"));
 	},
@@ -38,7 +42,7 @@
 	    this._changeSpeedTo(resultSpeed);
 	},
 
-	moveTo : function(position, direction, speed){
+	moveTo : function(position, direction, speed, checkpoints){
 	    var currentPos = this.get("position");
 	    if(currentPos != undefined){
 	        currentPos.changeOccupied(false);
@@ -50,6 +54,11 @@
 	    this.set("direction", direction);
 	    this._changeSpeedTo(speed);
 	    position.changeOccupied(true);
+
+	    if(checkpoints != undefined){
+	        var passedCheckpoints = this.get("passedCheckpoints");
+		this.set("passedCheckpoints", passedCheckpoints.concat(checkpoints));
+	    }
 	},
 
 	hesitate : function(){
