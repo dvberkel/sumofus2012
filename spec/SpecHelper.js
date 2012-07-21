@@ -46,6 +46,14 @@ beforeEach(function() {
 	    return this.actual.get("highlighted");
         },
 
+	toBeAnNPC : function() {
+	    return this.actual.get("npc");
+	},
+
+	toHaveDelayChance : function(expectedChance) {
+	    return this.actual.get("delayChance") === expectedChance;
+	},
+
 	toBeOccupied : function(){
 	    var actual = this.actual;
 	    return actual.isOccupied();
@@ -60,6 +68,28 @@ beforeEach(function() {
 		}
 	    }
 	    return false;
+	},
+
+	toBeACheckpoint : function(){
+	    return this.actual.get("checkpoint") != undefined;
+	},
+
+	toBeCheckpoint : function(expectedCheckpoint){
+	    return this.actual.get("checkpoint") === expectedCheckpoint;
+	},
+
+	toHavePassedCheckpoints : function(expectedCheckpoints){
+	    var passedCheckpoints = this.actual.get("passedCheckpoints");
+	    var length = passedCheckpoints.length;
+	    if( length != expectedCheckpoints.length){
+	        return false;
+	    }
+	    for(var i = 0; i < length; i++){
+	        if( passedCheckpoints[i] != expectedCheckpoints[i]){
+		    return false;
+		}
+	    }
+	    return true;
 	},
 
         toHaveNConnections : function(expectedNumberOfConnections) {
