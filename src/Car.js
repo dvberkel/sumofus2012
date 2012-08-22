@@ -8,7 +8,8 @@
 	    direction : undefined,
 	    highlighted  : false,
 	    npc : false,
-	    delayChance : 0
+	    delayChance : 0,
+            color : undefined,
 	},
 
 	initialize : function(){
@@ -72,5 +73,93 @@
 	}
     });
 
-    SumOfUs.Car = Car;
+	var CarView = Backbone.View.extend({
+		initialize : function(){
+			this.element = this.Car();
+
+			this.model.bind("change", function(){
+				this.render();
+			}, this);
+		},
+
+		Car : function() {
+			var position = this.model.get("position");
+			var speed = this.model.get("speed");
+			var angle = this.carAngle();
+			var carColor = this.model.get("color");
+
+			/* Foundation of car */
+			var carSet = this.paper().set();
+			var carObject = this.paper().rect(
+				position.x+1, position.y+1, 40, 20, 1
+			);
+			carObject.attr("fill", carColor);
+			carObject.attr("stroke", "black");
+			carSet.push(carObject);
+
+
+			/* Roof of car */
+			
+			carObject = this.paper().rect(
+				position.x+11, position.y+3, 20, 16, 2
+			);
+			carObject.attr("fill", "lightgrey");
+			carObject.attr("stroke", "black");
+			carSet.push(carObject);
+
+			/* Fire-up this car with some awesome wheels */
+			carObject = this.paper().rect(
+				position.x+5, position.y, 7, 1
+			);
+			carObject.attr("fill", "black");
+			carSet.push(carObject);
+
+			carObject = this.paper().rect(
+				position.x+5, position.y+21, 7, 1
+			);
+			carObject.attr("fill", "black");
+			carSet.push(carObject);			
+
+			carObject = this.paper().rect(
+				position.x+30, position.y, 7, 1
+			);
+			carObject.attr("fill", "black");
+			carSet.push(carObject);
+
+			carObject = this.paper().rect(
+				position.x+30, position.y+21, 7, 1
+			);
+			carObject.attr("fill", "black");
+			carSet.push(carObject);
+
+			carSet.transform(angle);
+
+			carObject = this.paper().text(
+				position.x+21, position.y+11, speed
+			);
+			carSet.push(carObject);
+
+			return carSet;
+		},
+
+		carAngle : function() {
+			var direction = this.model.get("direction");
+			/* TODO: make a direction to angle function */
+			return direction;
+		},
+		
+		paper : function() {
+			return this.options.paper;
+		},
+
+		render : function() {
+			var position = this.model.get("position");
+			this.element.attr("x", position.x);
+			this.element.attr("y", position.y);
+		},
+
+	});
+
+	SumOfUs.Car = Car;
+	SumOfUs.CarView = CarView;
 })(_, Backbone, SumOfUs);
