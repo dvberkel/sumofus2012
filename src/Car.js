@@ -99,7 +99,6 @@
 
 
 			/* Roof of car */
-			
 			carObject = this.paper().rect(
 				position.x+11, position.y+3, 20, 16, 2
 			);
@@ -132,7 +131,13 @@
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
-			carSet.transform(angle);
+			/* Direction */
+			carObject = this.paper().text(
+				position.x+36, position.y+11, ">"
+			);
+			carSet.push(carObject);
+
+			carSet.rotate(angle, position.x+21, position.y+11);
 
 			carObject = this.paper().text(
 				position.x+21, position.y+11, speed
@@ -145,7 +150,7 @@
 		carAngle : function() {
 			var direction = this.model.get("direction");
 			/* TODO: make a direction to angle function */
-			return direction;
+			return parseInt(direction);
 		},
 		
 		paper : function() {

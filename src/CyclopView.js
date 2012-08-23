@@ -13,7 +13,7 @@
 				"position" : {"x" : 200, "y" : 300}, 
 				"speed" : 3,
 				"color" : "lightblue",
-				"direction" : "r90",
+				"direction" : 90,
 			});
 			new SumOfUs.CarView({ model : car1, paper : paper });
 			 
@@ -23,7 +23,7 @@
 				"position" : {"x" : 100, "y" : 200},
 				"speed" : 3,
 				"color" : "red",
-				"direction" : "r180",
+				"direction" : 180,
 			});
 			new SumOfUs.CarView({ model : car2, paper : paper });
 
@@ -32,7 +32,7 @@
 				"position" : {"x" : 400, "y" : 100},
 				"speed" : 0,
 				"color" : "orange",
-				"direction" : "r0",
+				"direction" : 0,
 			});
 			new SumOfUs.CarView({ model : car3, paper : paper });
 		},
