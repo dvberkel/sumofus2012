@@ -19,6 +19,7 @@ describe("a Car", function(){
 	expect(car).not.toBeAnNPC();
 	expect(car).toHaveDelayChance(0);
 	expect(car).toHavePassedCheckpoints([]);
+        expect(car).not.toHaveADefinedColor();
     });
 
     it("should be highlightable", function(){
