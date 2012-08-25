@@ -27,6 +27,18 @@
 			});
 			new SumOfUs.CarView({ model : car2, paper : paper });
 
+			var demoTrack = new SumOfUs.Track();
+			var road = demoTrack.addSegment(
+				"road", {width : 2, length : 2, npcTraffic : "twoway"}
+			);
+			new SumOfUs.RoadView({
+				model : road,
+				paper : paper,
+				direction : "right",
+				beginPoint : {x : 100, y : 100},
+				endPoint : {x : 200, y : 150},
+			});
+
 			var car3 = new SumOfUs.Car();
 			car3.set({
 				"position" : {"x" : 400, "y" : 100},

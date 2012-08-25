@@ -35,6 +35,12 @@
 
 	/* A suggestion */
         roadViews = [];
-	roadViews.push( new SumOfUs.RoadView(road[0],"right", {x:10,y:15}, {x:120,y:25}) )
+	roadViews.push( new SumOfUs.RoadView(
+		model : road[0],
+		paper : paper,
+		direction : "right", 
+		beginpoint : {x:10,y:15}, 
+		endpoint : {x:120,y:25},
+	));
 
 })(_, Backbone, SumOfUs);

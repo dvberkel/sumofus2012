@@ -118,7 +118,11 @@
 	    var width = args.width;
 	    var nodes = [];
 	    var dirs = ["one->two","two->one"];
-	    if(args.npcTraffic == "oneway" || args.npcTraffic == "twoway"){
+	    
+		this.set("length", length);
+		this.set("width", width);
+
+            if(args.npcTraffic == "oneway" || args.npcTraffic == "twoway"){
 	        dirs.push(NPC_DIRECTION);
 	    }
 	    for(var i = 0; i < length; i++){
@@ -330,6 +334,7 @@
 
 	},
 
+
 	getReachableNodes : function(startingNode, startingDirection, speed){
 	    var res = [{node : startingNode,
 	                direction : startingDirection,
@@ -402,8 +407,94 @@
 	}
     });
 
+	var RoadView = Backbone.View.extend({
+		initialize : function() {
+			this.element = this.Road();
+
+			this.model.bind("change", function(){
+				this.render();
+			}, this);
+		},
+
+		Road : function() {
+			var direction  = this.options.direction;
+			var beginPoint = this.options.beginPoint;
+			var endPoint   = this.options.endPoint;
+			var width      = this.model.get("width");
+			var length     = this.model.get("length");
+
+			/* Road foundation */
+			var roadSet = this.paper().set();
+			var roadObject = this.paper().rect(
+				beginPoint.x, 
+				beginPoint.y, 
+				endPoint.x - beginPoint.x, 
+				endPoint.y - beginPoint.y
+			);
+			roadObject.attr("stroke", "black");
+			roadSet.push(roadObject);
+
+			var spaceWidth  = (endPoint.x - beginPoint.x)/width;
+			var spaceLength = (endPoint.y - beginPoint.y)/length;
+
+			/* Map over all TrackNodes. */
+			for (var i = 0; i < width; i++) {
+				for (var j = 0; j < length; j++) {
+					var center = {
+						x : beginPoint.x 
+							+ i*spaceWidth 
+							+ spaceWidth/2,
+						y : beginPoint.y 
+							+ j*spaceLength 
+							+ spaceLength/2,
+					};
+					alert(center.x + " " + center.y);
+					roadObject = this.paper().rect(
+						center.x, center.y, 1, 1
+					);
+					roadObject.attr("stroke", "black");
+					roadSet.push(roadObject);
+				}
+			}
+
+			return roadSet;
+		},
+
+		paper : function() {
+			return this.options.paper;
+		},
+
+		render : function() {
+			/* pass */
+		},
+	});
+
+	var CrossingView = Backbone.View.extend({
+		initialize : function() {
+			this.element = this.TrackSegment();
+
+			this.model.bind("change", function(){
+				this.render();
+			}, this);
+		},
+
+		Crossing : function() {
+			/* pass */
+		},
+
+		paper : function() {
+			return this.options.paper;
+		},
+
+		render : function() {
+			/* pass */
+		},
+	});
+
     SumOfUs.NPC_DIRECTION = NPC_DIRECTION;
     SumOfUs.TrackNode = TrackNode;
     SumOfUs.TrackSegment = TrackSegment;
     SumOfUs.Track = Track;
+	SumOfUs.RoadView = RoadView;
+	SumOfUs.CrossingView = CrossingView;
 })(_,Backbone, SumOfUs)
