@@ -133,10 +133,6 @@ beforeEach(function() {
             }
             return false;
         },
- 
-        toHaveStarted : function(){
-	    return this.actual.get("started");
-	},
 
 	toBeAtTurn : function(expectedTurn){
 	    var game = this.actual;
@@ -146,6 +142,10 @@ beforeEach(function() {
 
 	toHaveCompletedRounds : function(expectedRounds){
 	    return this.actual.get("roundsCompleted") == expectedRounds;
+	},
+
+	toHaveStatus : function(expectedStatus){
+	    return this.actual.get("status") == expectedStatus;
 	}
     });
 });

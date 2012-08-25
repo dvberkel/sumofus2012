@@ -89,6 +89,11 @@ describe("a Car", function(){
 	expect( (function(){car.moveTo(node)}) ).toThrow();
     });
 
+    it("shouldn't be able to move in a direction that doesn't exist", function(){
+        var node = new SumOfUs.TrackNode({directions : ["A"]});
+	expect((function(){car.moveTo(node,"B");}) ).toThrow();
+    });
+
     it("should be able to pass checkpoints", function(){
 	var node1 = new SumOfUs.TrackNode({directions : ["A"]});
 	car.moveTo(node1,"A",2,["a","b","c"]);

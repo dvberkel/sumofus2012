@@ -43,12 +43,17 @@
 	},
 
 	moveTo : function(position, direction, speed, checkpoints){
+	    if(position.isOccupied()){
+	        if(speed != 0 || position != this.get("position")){
+  	            throw "Can't move to an occupied position";
+		}
+	    }
+	    if(direction != undefined && position.get("directions").indexOf(direction) == -1){
+	        throw "Can't move in that direction";
+	    }
 	    var currentPos = this.get("position");
 	    if(currentPos != undefined){
 	        currentPos.changeOccupied(undefined);
-	    }
-	    if(position.isOccupied()){
-	        throw "Can't move to an occupied position";
 	    }
 	    this.set("position", position);
 	    this.set("direction", direction);
