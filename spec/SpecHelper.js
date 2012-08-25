@@ -18,6 +18,12 @@ beforeEach(function() {
 	    return direction !== jasmine.undefined;
 	},
 
+	toHaveADefinedColor : function() {
+		var car = this.actual;
+		var color = car.get("color");
+		return color !== jasmine.undefined;
+	},
+
 	toBeGoingInDirection : function(expectedDirection) {
 	    var actual = this.actual;
 	    var direction = actual.get("direction");
