@@ -45,7 +45,7 @@
 	moveTo : function(position, direction, speed, checkpoints){
 	    var currentPos = this.get("position");
 	    if(currentPos != undefined){
-	        currentPos.changeOccupied(false);
+	        currentPos.changeOccupied(undefined);
 	    }
 	    if(position.isOccupied()){
 	        throw "Can't move to an occupied position";
@@ -53,7 +53,7 @@
 	    this.set("position", position);
 	    this.set("direction", direction);
 	    this._changeSpeedTo(speed);
-	    position.changeOccupied(true);
+	    position.changeOccupied(this);
 
 	    if(checkpoints != undefined){
 	        var passedCheckpoints = this.get("passedCheckpoints");

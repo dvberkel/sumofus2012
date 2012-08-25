@@ -54,9 +54,13 @@ beforeEach(function() {
 	    return this.actual.get("delayChance") === expectedChance;
 	},
 
-	toBeOccupied : function(){
+	toBeOccupiedBy : function(car){
 	    var actual = this.actual;
-	    return actual.isOccupied();
+	    return actual.get("occupiedBy") == car;
+	},
+
+	toBeOccupied : function(){
+	    return this.actual.isOccupied();
 	},
 
 	toBeConnectedTo : function(node, inDir, outDir){
@@ -128,6 +132,20 @@ beforeEach(function() {
                 }
             }
             return false;
-        }
+        },
+ 
+        toHaveStarted : function(){
+	    return this.actual.get("started");
+	},
+
+	toBeAtTurn : function(expectedTurn){
+	    var game = this.actual;
+	    var turn = game.get("currentTurn");
+	    return turn[0] == expectedTurn[0] && turn[1] == expectedTurn[1];
+	},
+
+	toHaveCompletedRounds : function(expectedRounds){
+	    return this.actual.get("roundsCompleted") == expectedRounds;
+	}
     });
 });
