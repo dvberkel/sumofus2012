@@ -204,6 +204,10 @@
 	    var width = args.width;
 	    var nodes = [];
 	    var dirs = ["north","east","south","west"];
+		
+		this.set("height", height);
+		this.set("width", width);
+
 	    if(args.npcTraffic == "oneway" || args.npcTraffic == "twoway"){
 	        dirs.push(NPC_DIRECTION);
 	    }
@@ -423,37 +427,166 @@
 			var width      = this.model.get("width");
 			var length     = this.model.get("length");
 
+			switch (this.options.direction) {
+			case "right" :
+				var bx = beginPoint.x;
+				var by = beginPoint.y;
+				var ex = endPoint.x;
+				var ey = endPoint.y;
+				break;
+			case "left" :
+				var bx = endPoint.x;
+				var by = beginPoint.y;
+				var ex = beginPoint.x;
+				var ey = endPoint.y;
+				break;
+			case "up" :
+				var bx = beginPoint.x;
+				var by = endPoint.y;
+				var ex = endPoint.x;
+				var ey = beginPoint.y;
+				break;
+			case "down" :
+				var bx = endPoint.x;
+				var by = beginPoint.y;
+				var ex = beginPoint.x;
+				var ey = endPoint.y;
+				break;
+			}
+
 			/* Road foundation */
 			var roadSet = this.paper().set();
-			var roadObject = this.paper().rect(
-				beginPoint.x, 
-				beginPoint.y, 
-				endPoint.x - beginPoint.x, 
-				endPoint.y - beginPoint.y
-			);
-			roadObject.attr("stroke", "black");
-			roadSet.push(roadObject);
+			var roadObject;
 
-			var spaceWidth  = (endPoint.x - beginPoint.x)/width;
-			var spaceLength = (endPoint.y - beginPoint.y)/length;
+			switch (this.options.direction) {
+			case "right":
+			case "left":
+				roadObject = this.paper().rect(
+					bx, by-1, ex - bx, 1
+				);
+				roadObject.attr("stroke", "black");
+				
+				roadSet.push(roadObject);
+
+				roadObject = this.paper().rect(
+					bx, ey, ex - bx, 1
+				);
+				roadObject.attr("stroke", "black");
+
+				roadSet.push(roadObject);
+				break;
+			case "up":
+			case "down":
+				roadObject = this.paper().rect(
+					bx-1, by, 1, ey - by
+				);
+				roadObject.attr("stroke", "black");
+
+				roadSet.push(roadObject);
+
+				roadObject = this.paper().rect(
+					ex, by, 1, ey - by
+				);
+				roadObject.attr("stroke", "black");
+
+				roadSet.push(roadObject);
+				break;
+			}
+
+			var spaceWidth, spaceHeight;
+
+			switch (this.options.direction) {
+			case "right":
+			case "left":
+				spaceWidth  = (ex - bx) / length;
+				spaceHeight = (ey - by) / width;
+				break;
+			case "up":
+			case "down":
+				spaceWidth = (ex - bx) / width;
+				spaceHeight = (ey - by) / length;
+				break;
+			}
 
 			/* Map over all TrackNodes. */
-			for (var i = 0; i < width; i++) {
-				for (var j = 0; j < length; j++) {
-					var center = {
-						x : beginPoint.x 
-							+ i*spaceWidth 
-							+ spaceWidth/2,
-						y : beginPoint.y 
-							+ j*spaceLength 
-							+ spaceLength/2,
+			for (var i = 0; i < length; i++) {
+				for (var j = 0; j < width; j++) {
+					switch (this.options.direction) {
+					case "right":
+					case "left":
+						var center = {
+							x : bx + (i + 1/2)*spaceWidth,
+							y : by + (j + 1/2)*spaceHeight,
+						};
+						var begin = {
+							x : bx + i * spaceWidth,
+							y : by + j * spaceHeight,
+						};
+						
+						roadObject = this.paper().rect(
+							begin.x+4, 
+							begin.y+4, 
+							spaceWidth-8, 
+							spaceHeight-8,
+							2
+						);
+						roadObject.attr("stroke", "gray");
+						roadSet.push(roadObject);
+						break;
+					case "up":
+					case "down":
+						var center = {
+							x : bx + (j + 1/2)*spaceHeight,
+							y : by + (i + 1/2)*spaceWidth,
+						};
+						var begin = {
+							x : bx + j * spaceWidth,
+							y : by + i * spaceHeight,
+						};
+						
+						roadObject = this.paper().rect(
+							begin.x+4, 
+							begin.y+4, 
+							spaceWidth-8, 
+							spaceHeight-8,
+							2
+						);
+						roadObject.attr("stroke", "gray");
+						roadSet.push(roadObject);
+						break;
+					}
+				}
+			}
+
+			/* Marks */
+			for (var j = 1; j < width; j++) {
+				for (var i = 0; i < 2*length; i++) {
+					switch (this.options.direction) {
+					case "right":
+					case "left":
+						var x = bx + (i + 1/2)/2 * spaceWidth;
+						var y = by + j * spaceHeight;
+
+						roadObject = this.paper().rect(
+							x-5, y-1, 10, 2
+						);
+						roadObject.attr("fill", "black");
+						roadSet.push(roadObject);
+						break;
+
+					case "up":
+					case "down":
+						var x = bx + j * spaceWidth;
+						var y = by + (i + 1/2)/2 * spaceHeight;
+
+						roadObject = this.paper().rect(
+							x-1, y-5, 2, 10
+						);
+						roadObject.attr("fill", "black");
+						roadSet.push(roadObject);
+						break;
+
 					};
-					alert(center.x + " " + center.y);
-					roadObject = this.paper().rect(
-						center.x, center.y, 1, 1
-					);
-					roadObject.attr("stroke", "black");
-					roadSet.push(roadObject);
 				}
 			}
 
@@ -471,7 +604,7 @@
 
 	var CrossingView = Backbone.View.extend({
 		initialize : function() {
-			this.element = this.TrackSegment();
+			this.element = this.Crossing();
 
 			this.model.bind("change", function(){
 				this.render();
@@ -479,7 +612,81 @@
 		},
 
 		Crossing : function() {
-			/* pass */
+			var direction  = this.options.direction;
+			var beginPoint = this.options.beginPoint;
+			var endPoint   = this.options.endPoint;
+			var width      = this.model.get("width");
+			var height     = this.model.get("height");
+
+			var crossingSet = this.paper().set();
+			
+			var bx = beginPoint.x;
+			var by = beginPoint.y;
+			var ex = endPoint.x;
+			var ey = endPoint.y;
+
+			/* Foundation object */
+			var crossingObject = this.paper().rect(
+				bx, by, ex - bx, ey - by, 3
+			);
+			crossingObject.attr("stroke", "black");
+
+			crossingSet.push(crossingObject);
+
+			var spaceWidth  = (ex - bx) / height;
+			var spaceHeight = (ey - by) / width;
+		
+			/* Seats in the crossing */
+			for (var i = 0; i < width; i++) {
+				for (var j = 0; j < height; j++) {
+					var begin = {
+						x : bx + i * spaceWidth,
+						y : by + j * spaceHeight,
+					};
+					
+					crossingObject = this.paper().rect(
+						begin.x + 4, 
+						begin.y + 4, 
+						spaceWidth - 8, 
+						spaceHeight - 8, 
+						2
+					);
+					crossingObject.attr("stroke", "gray");
+
+					crossingSet.push(crossingObject);
+				}
+			}
+
+			/* Marks */
+			for (var i = 1; i < width; i++) {
+				for (var j = 0; j < 2*height; j++) {
+					var x = bx + (j + 1/2)/2 * spaceWidth;
+					var y = by + i * spaceHeight;
+
+					crossingObject = this.paper().rect(
+						x-5, y-1, 10, 2
+					);
+					crossingObject.attr("fill", "black");
+					
+					crossingSet.push(crossingObject);
+				}
+			}
+
+			for (var i = 1; i < height; i++) {
+				for (var j = 0; j < 2*width; j++) {
+					var x = bx + i * spaceHeight;
+					var y = by + (j + 1/2)/2 * spaceWidth;
+
+					crossingObject = this.paper().rect(
+						x-1, y-5, 2, 10
+					);
+					crossingObject.attr("fill", "black");
+
+					crossingSet.push(crossingObject);
+				}
+			}
+
+			return crossingSet;
 		},
 
 		paper : function() {
