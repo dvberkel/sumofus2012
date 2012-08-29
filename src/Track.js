@@ -8,7 +8,7 @@
     const NPC_DIRECTION = "npc"
 
     var TrackNode = Backbone.Model.extend({
-        defaults : { occupied : false },
+        defaults : { occupiedBy : undefined },
 
 	initialize : function(){
 	    if(this.get("directions") === undefined){
@@ -22,11 +22,11 @@
 	},
 
 	changeOccupied : function(setting){
-	   this.set("occupied",setting);
+	   this.set("occupiedBy",setting);
 	},
 
 	isOccupied : function(){
-	   return this.get("occupied");
+	   return this.get("occupiedBy") != undefined;
 	},
 
 	addConnection : function(node, inDir, outDir){

@@ -44,17 +44,22 @@
 	},
 
 	moveTo : function(position, direction, speed, checkpoints){
+	    if(position.isOccupied()){
+	        if(speed != 0 || position != this.get("position")){
+  	            throw "Can't move to an occupied position";
+		}
+	    }
+	    if(direction != undefined && position.get("directions").indexOf(direction) == -1){
+	        throw "Can't move in that direction";
+	    }
 	    var currentPos = this.get("position");
 	    if(currentPos != undefined){
-	        currentPos.changeOccupied(false);
-	    }
-	    if(position.isOccupied()){
-	        throw "Can't move to an occupied position";
+	        currentPos.changeOccupied(undefined);
 	    }
 	    this.set("position", position);
 	    this.set("direction", direction);
 	    this._changeSpeedTo(speed);
-	    position.changeOccupied(true);
+	    position.changeOccupied(this);
 
 	    if(checkpoints != undefined){
 	        var passedCheckpoints = this.get("passedCheckpoints");

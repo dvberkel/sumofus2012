@@ -77,17 +77,22 @@ describe("a Car", function(){
 	expect(car).toBeAt(node1);
 	expect(car).toHaveSpeed(2);
 	expect(car).toBeGoingInDirection("A");
-	expect(node1).toBeOccupied();
+	expect(node1).toBeOccupiedBy(car);
 
 	car.moveTo(node2,"B",3)
 	expect(car).toBeAt(node2);
 	expect(node1).not.toBeOccupied();
-        expect(node2).toBeOccupied();
+        expect(node2).toBeOccupiedBy(car);
     });
 
     it("shouldn't be able to move to occupied positions", function(){
-	var node = new SumOfUs.TrackNode({occupied : false});
-	expect( (function(){car.moveTo(node1)}) ).toThrow();
+	var node = new SumOfUs.TrackNode({occupiedBy : new SumOfUs.Car()});
+	expect( (function(){car.moveTo(node)}) ).toThrow();
+    });
+
+    it("shouldn't be able to move in a direction that doesn't exist", function(){
+        var node = new SumOfUs.TrackNode({directions : ["A"]});
+	expect((function(){car.moveTo(node,"B");}) ).toThrow();
     });
 
     it("should be able to pass checkpoints", function(){

@@ -515,7 +515,7 @@ describe("a Track", function (){
                     nodes[i-1].connectTo(nodes[i]).along("A");
                 }
             }
-	    nodes[4].changeOccupied(true);
+	    nodes[4].changeOccupied(new SumOfUs.Car());
             var reachableNodes = track.getReachableNodes(nodes[0],"A",6);
             expect(reachableNodes).toContainSomethingWithProperties({node : nodes[3]});
             expect(reachableNodes).not.toContainSomethingWithProperties({node : nodes[4]});
@@ -580,7 +580,7 @@ describe("a Track", function (){
 	it("can't have non-player cars added on occupied positions", function(){
 	    var npcdir = SumOfUs.NPC_DIRECTION;
 	    var node = new SumOfUs.TrackNode({directions : [npcdir]});
-	    node.changeOccupied(true);
+	    node.changeOccupied(new SumOfUs.Car());
 	    expect( (function(){track.addNonPlayerCar(node);}) ).toThrow();
 	});
 
