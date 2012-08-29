@@ -88,9 +88,12 @@
 		},
 
 		Car : function() {
-			var position = this.model.get("position");
-			var speed = this.model.get("speed");
-			var angle = this.carAngle();
+			var position = this.options.position;
+			if (this.model.get("speed") != undefined)
+				var speed = this.model.get("speed");
+			else
+				var speed = 0;
+			var angle = this.options.angle;
 			var carColor = this.model.get("color");
 
 			/* Foundation of car */
@@ -163,7 +166,7 @@
 		},
 
 		render : function() {
-			var position = this.model.get("position");
+			var position = this.options.position;
 			this.element.attr("x", position.x);
 			this.element.attr("y", position.y);
 		},
