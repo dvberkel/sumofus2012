@@ -8,7 +8,8 @@
     const NPC_DIRECTION = "npc"
 
     var TrackNode = Backbone.Model.extend({
-        defaults : { occupiedBy : undefined },
+        defaults : { occupiedBy : undefined,
+		             highlighted : false},
 
 	initialize : function(){
 	    if(this.get("directions") === undefined){
@@ -431,7 +432,10 @@
 			var roadObject = this.paper().rect(x, y, length, height, edge);
 			roadObject.attr("stroke", "gray");
 			roadObject.attr("fill", "white");
-			roadObject.click(this.isClicked);
+
+			var callback = this.options.callback;
+			var node = this.model;
+			roadObject.click(function(){callback(node);});
 
 			roadSet.push(roadObject);
 
@@ -455,13 +459,30 @@
 			return this.options.paper;
 		},
 
-		isClicked : function() {
-			alert("click!");
-		},
-
 		render : function() {
+			if(this.model.get("highlighted")){
+			    this.element.attr("fill","green");
+			} else {
+				this.element.attr("fill","white");
+			}
+	
+            //Can't really figure out how to remove the old car.
+			//I'm just creating a new view if this node is occupied.
+			if(this.model.isOccupied()){
+				var x = this.options.beginPoint.x;
+				var y = this.options.beginPoint.y;
+				roadObject = new SumOfUs.CarView({
+					model : this.model.get("occupiedBy"),
+					paper : this.options.paper,
+					angle : 0,
+					position : {x : x + 5, y : y + 5},
+				});
+    			this.element.push(roadObject);
+			}
 
-		},
+			return this;
+		}
+
 	});
 
 	var RoadView = Backbone.View.extend({
@@ -516,6 +537,7 @@
 				
 					roadObject = new SumOfUs.TrackNodeView({
 						model : this.model.get("nodes")[i][j],
+						callback : this.options.callback,
 						paper : this.options.paper,
 						place : { xi : i, xj : j },
 						beginPoint : { 

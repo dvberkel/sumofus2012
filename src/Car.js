@@ -165,10 +165,15 @@
 			return this.options.paper;
 		},
 
+		foo : function() {
+		    console.log("foo");
+
+		},
+
 		render : function() {
-			var position = this.options.position;
-			this.element.attr("x", position.x);
-			this.element.attr("y", position.y);
+			//var position = this.options.position;
+			//this.element.attr("x", position.x);
+			//this.element.attr("y", position.y);
 		},
 
 	});

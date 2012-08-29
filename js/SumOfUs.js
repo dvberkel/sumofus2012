@@ -45,13 +45,14 @@
 
 		new SumOfUs.RoadView({
 			model : demoRoad,
-			game  : demoGame,
+			callback  : demoGame.playerClickedOnNode.bind(demoGame),
 			paper : paper,
 			direction : "right",
 			beginPoint : {x : 100, y : 100},
 			endPoint : {x : 100 + 10*60, y : 100 + 4*40},
 		});
 
+		demoGame.start();
 
 		(function loop(){
 			requestAnimFrame(loop);
