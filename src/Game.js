@@ -64,6 +64,7 @@
 	    for each(var move in potentialMoves){
 	       move.node.changeHighlight(true);
 	    }
+	    car.changeHighlight(true);
 	},
 
 	handlePlayerCarMove : function(node){
@@ -85,6 +86,7 @@
 	    for each(var move in potentialMoves){
 	        move.node.changeHighlight(false);
 	    }
+	    car.changeHighlight(false);
 
 	    this.advanceTurn();
 	    this.setupNextTurn();

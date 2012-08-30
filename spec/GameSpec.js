@@ -159,6 +159,23 @@ describe("a Game", function(){
 	}
     });
 
+    it("should highlight the car to be moved", function(){
+        game = new SumOfUs.Game({track : track, numberOfTeams : 2, carsPerTeam : 1});
+        game.assignLocationToPlayerCar(0,0,nodes[0][0],"one->two");
+        game.assignLocationToPlayerCar(1,0,nodes[0][1],"one->two");
+	var cars = game.get("playerCars");
+	game.start();
+
+	expect(cars[0][0]).toBeHighlighted();
+	expect(cars[1][0]).not.toBeHighlighted();
+	//game.playerClickedOnNode(nodes[1][0]);
+	//expect(cars[0][0]).toBeHighlighted();
+	//expect(cars[1][0]).not.toBeHighlighted();
+	game.playerClickedOnNode(nodes[1][0]);
+	expect(cars[0][0]).not.toBeHighlighted();
+	expect(cars[1][0]).toBeHighlighted();
+    });
+
     it("should advance the npcs after the players have moved", function(){
         track.addNonPlayerCar(nodes[0][3]);
         track.addNonPlayerCar(nodes[2][3]);
