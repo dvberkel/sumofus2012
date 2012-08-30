@@ -6,6 +6,7 @@
 	    roundsCompleted : 0,
 	    playerDefaultMaxSpeed : 5,
 	    playerDefaultAcceleration : 1,
+	    pointsPerCheckpoint : 10
 	},
 
 	initialize : function(){
@@ -13,17 +14,26 @@
 	        throw "Can't create a game without a track";
 	    }
 	    var playerCars = [];
+	    var scores = [];
 	    for(var team = 0; team < this.get("numberOfTeams"); team++){
 	        var cars = [];
+		var teamscores = [];
 	        for(var car = 0; car < this.get("carsPerTeam"); car++){
 	            cars.push(new SumOfUs.Car({maxSpeed : this.get("playerDefaultMaxSpeed"),
 	                                       acceleration : this.get("playerDefaultAcceleration")}));
+		    teamscores.push(0);
 	        }
 	        playerCars.push(cars);
+		scores.push(teamscores);
 	    }
 	    this.set("playerCars", playerCars);
+	    this.set("scores",scores);
 	    this.set("currentTurn", [0,0]);
 	    this.set("status","not started");
+
+	    if(this.get("checkpointOrder") == undefined){
+	        this.set("checkpointOrder",["A","B"]);
+	    }
         },
 
 	assignLocationToPlayerCar : function(teamNumber, carNumber, position, direction){
@@ -97,6 +107,10 @@
 	    var move = this.get("selectedMove");
 	    if(move.node == node){
                 car.moveTo(move.node, move.direction, move.speed, move.passedCheckpoints);
+		if(move.passedCheckpoints.length > 0){
+		    this.recalculateScore(turn[0],turn[1]);
+		}
+
 		node.changeHighlight(false);
 		car.changeHighlight(false);
 
@@ -136,9 +150,25 @@
 	    } else if(this.get("status") == "waiting for confirmation of car move"){
 	        this.handlePlayerCarMove(node);
 	    }
+	},
+
+	recalculateScore : function(team, car){
+	    var passedCheckpoints = this.get("playerCars")[team][car].get("passedCheckpoints");
+	    var checkpointOrder = this.get("checkpointOrder");
+	    var pointsPerCheckpoint = this.get("pointsPerCheckpoint");
+	    var score = 0;
+	    var atCheckpoint = 0;
+	    for(var i = 0; i < passedCheckpoints.length; i++){
+	        if(passedCheckpoints[i] == checkpointOrder[atCheckpoint]){
+		    score += pointsPerCheckpoint;
+		    atCheckpoint += 1;
+		    atCheckpoint %= checkpointOrder.length;
+		}
+	    }
+	    var scores = this.get("scores");
+	    scores[team][car] = score;
+	    this.set("scores",scores);
 	}
-
-
     });
 
     SumOfUs.Game = Game;
