@@ -41,7 +41,6 @@
 		}
 	    }
 	    if(this.get("status") == "not started"){
-	       this.set("status","waiting for player car move");
 	       this.set("currentTurn", [0,0]);
 	       this.set("roundsCompleted", 0);
 	    }
@@ -65,17 +64,18 @@
 	       move.node.changeHighlight(true);
 	    }
 	    car.changeHighlight(true);
+	    this.set("status","waiting for player car move");
 	},
 
-	handlePlayerCarMove : function(node){
+	checkIfMoveIsValid : function(node){
 	    var turn = this.get("currentTurn");
 	    var car = this.get("playerCars")[turn[0]][turn[1]]
 	    var potentialMoves = this.get("potentialMoves");
 	    var goodMove = false;
 	    for each(var move in potentialMoves){
 	        if(move.node == node){
-	            car.moveTo(move.node, move.direction, move.speed, move.passedCheckpoints);
  		    goodMove = true;
+		    this.set("selectedMove", move);
  		    break;
 	        }
 	    }
@@ -84,13 +84,31 @@
             }
 	    
 	    for each(var move in potentialMoves){
-	        move.node.changeHighlight(false);
+	        if(move.node != node){
+	            move.node.changeHighlight(false);
+		}
 	    }
-	    car.changeHighlight(false);
-
-	    this.advanceTurn();
-	    this.setupNextTurn();
+	    this.set("status", "waiting for confirmation of car move");
 	},
+
+	handlePlayerCarMove : function(node){
+	    var turn = this.get("currentTurn");
+	    var car = this.get("playerCars")[turn[0]][turn[1]]
+	    var move = this.get("selectedMove");
+	    if(move.node == node){
+                car.moveTo(move.node, move.direction, move.speed, move.passedCheckpoints);
+		node.changeHighlight(false);
+		car.changeHighlight(false);
+
+		this.advanceTurn();
+		this.setupNextTurn();
+            } else {
+		for each(var potentialMove in this.get("potentialMoves")){
+		   potentialMove.node.changeHighlight(true);
+		}
+		this.set("status", "waiting for player car move");
+	    }
+        },
 
 	advanceTurn : function(){
 	    var turn = this.get("currentTurn");
@@ -114,6 +132,8 @@
 
 	playerClickedOnNode : function(node){
 	    if(this.get("status") == "waiting for player car move"){
+	        this.checkIfMoveIsValid(node);
+	    } else if(this.get("status") == "waiting for confirmation of car move"){
 	        this.handlePlayerCarMove(node);
 	    }
 	}
