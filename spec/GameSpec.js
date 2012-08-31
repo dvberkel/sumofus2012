@@ -318,24 +318,30 @@ describe("a Game", function(){
 	});
     });
 
-    describe("should have functionality for upgrading the cars that", function(){
-        it("should allow a car's speed to be upgraded", function(){ 
-	    game.giveSpeedUpgradeTo(0,0);
-	    game.giveSpeedUpgradeTo(2,1);
-	    expect(cars[0][0]).toBeUpgradedWithSpeed();
-	    expect(cars[2][1]).toBeUpgradedWithSpeed();
-	    expect(cars[0][1]).not.toBeUpgradedWithSpeed();
-	    expect(cars[1][1]).not.toBeUpgradedWithSpeed();
-	});
-
-        it("should allow a car's acceleration to be upgraded", function(){
-	    game.giveAccelerationUpgradeTo(0,0);
-	    game.giveAccelerationUpgradeTo(2,1);
-	    expect(cars[0][0]).toBeUpgradedWithAcceleration();
-	    expect(cars[2][1]).toBeUpgradedWithAcceleration();
-	    expect(cars[0][1]).not.toBeUpgradedWithAcceleration();
-	    expect(cars[1][1]).not.toBeUpgradedWithAcceleration();
-	});
-
+    it("should allow a car's speed to be upgraded", function(){ 
+	game.giveSpeedUpgradeTo(0,0);
+	game.giveSpeedUpgradeTo(2,1);
+	expect(cars[0][0]).toBeUpgradedWithSpeed();
+	expect(cars[2][1]).toBeUpgradedWithSpeed();
+	expect(cars[0][1]).not.toBeUpgradedWithSpeed();
+	expect(cars[1][1]).not.toBeUpgradedWithSpeed();
     });
+
+    it("should allow a car's acceleration to be upgraded", function(){
+	game.giveAccelerationUpgradeTo(0,0);
+	game.giveAccelerationUpgradeTo(2,1);
+	expect(cars[0][0]).toBeUpgradedWithAcceleration();
+	expect(cars[2][1]).toBeUpgradedWithAcceleration();
+	expect(cars[0][1]).not.toBeUpgradedWithAcceleration();
+	expect(cars[1][1]).not.toBeUpgradedWithAcceleration();
+    });
+
+    it("should be able to add new npcs", function(){
+        game.addNPC(nodes[4][1]);
+	expect(nodes[4][1]).toBeOccupied();
+	var car = nodes[4][1].get("occupiedBy");
+	expect(car).toBeAnNPC;
+	expect(car).toHaveSpeed(0);
+    });
+
 });

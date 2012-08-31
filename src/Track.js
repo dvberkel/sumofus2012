@@ -379,14 +379,18 @@
 	    return res;
 	},
 
-	addNonPlayerCar : function(node){
+	addNonPlayerCar : function(node,speed){
+	    if(speed == undefined || speed > this.get("npcMaxSpeed") || speed < 0){
+	        speed = this.get("npcMaxSpeed");
+	    }
+
 	    var car = new SumOfUs.Car({npc : true, 
 	                               maxSpeed : this.get("npcMaxSpeed"),
 				       delayChance : this.get("npcDelayChance")});
 	    if(node.get("directions").indexOf(NPC_DIRECTION) == -1){
 	        throw "Can't add npc car on node without npc direction";
 	    }
-	    car.moveTo(node, NPC_DIRECTION, this.get("npcMaxSpeed"));
+	    car.moveTo(node, NPC_DIRECTION, speed);
 
 	    var cars = this.get("nonPlayerCars");
 	    cars.push(car);

@@ -191,6 +191,10 @@
 	    if(this.get("status") == "paused"){
 	        this.set("status",this.get("prePausedStatus"));
 	    }
+	},
+
+	addNPC : function(node){
+	    this.get("track").addNonPlayerCar(node,0);
 	}
     });
 
