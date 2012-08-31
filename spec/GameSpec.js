@@ -299,6 +299,25 @@ describe("a Game", function(){
 	    expect(game.get("scores")[0][0]).toEqual(30);
 	});
     });
-    
 
+    describe("should have functionality for upgrading the cars that", function(){
+        it("should allow a car's speed to be upgraded", function(){ 
+	    game.giveSpeedUpgradeTo(0,0);
+	    game.giveSpeedUpgradeTo(2,1);
+	    expect(cars[0][0]).toBeUpgradedWithSpeed();
+	    expect(cars[2][1]).toBeUpgradedWithSpeed();
+	    expect(cars[0][1]).not.toBeUpgradedWithSpeed();
+	    expect(cars[1][1]).not.toBeUpgradedWithSpeed();
+	});
+
+        it("should allow a car's acceleration to be upgraded", function(){
+	    game.giveAccelerationUpgradeTo(0,0);
+	    game.giveAccelerationUpgradeTo(2,1);
+	    expect(cars[0][0]).toBeUpgradedWithAcceleration();
+	    expect(cars[2][1]).toBeUpgradedWithAcceleration();
+	    expect(cars[0][1]).not.toBeUpgradedWithAcceleration();
+	    expect(cars[1][1]).not.toBeUpgradedWithAcceleration();
+	});
+
+    });
 });

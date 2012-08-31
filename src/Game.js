@@ -168,6 +168,14 @@
 	    var scores = this.get("scores");
 	    scores[team][car] = score;
 	    this.set("scores",scores);
+	},
+
+	giveSpeedUpgradeTo : function(team,car){
+	    this.get("playerCars")[team][car].upgradeSpeed();
+	},
+
+	giveAccelerationUpgradeTo : function(team,car){
+	    this.get("playerCars")[team][car].upgradeAcceleration();
 	}
     });
 

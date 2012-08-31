@@ -10,6 +10,8 @@
 	    npc : false,
 	    delayChance : 0,
             color : undefined,
+	    upgradedSpeed : 6,
+	    upgradedAcceleration : 2
 	},
 
 	initialize : function(){
@@ -74,7 +76,23 @@
 	},
 
         changeHighlight : function(setting){
-	   this.set("highlighted", setting);
+	    this.set("highlighted", setting);
+	},
+
+	upgradeSpeed : function(){
+	    this.set("maxSpeed", this.get("upgradedSpeed"));
+	},
+
+	upgradeAcceleration : function(){
+	   this.set("acceleration", this.get("upgradedAcceleration"));
+	},
+
+	hasUpgradedSpeed : function(){
+	    return this.get("maxSpeed") == this.get("upgradedSpeed");
+	},
+
+	hasUpgradedAcceleration : function(){
+	    return this.get("acceleration") == this.get("upgradedAcceleration");
 	}
     });
 
