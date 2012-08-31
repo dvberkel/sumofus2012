@@ -69,6 +69,24 @@ describe("a Game", function(){
 	expect(game).toHaveCompletedRounds(0);
     });
 
+    it("should be pausable and resumable", function(){
+        game.set("status","A");
+	expect(game).toHaveStatus("A");
+	game.pause();
+	expect(game).toHaveStatus("paused");
+	game.resume();
+	expect(game).toHaveStatus("A");
+
+	game.set("status","B");
+	game.resume();
+	expect(game).toHaveStatus("B");
+	game.pause();
+	game.pause();
+	expect(game).toHaveStatus("paused");
+	game.resume();
+	expect(game).toHaveStatus("B");
+    });
+
     describe("has functionality to let users move cars that", function(){
 	it("should move cars according to user input", function(){
 	    game = new SumOfUs.Game({track : track, numberOfTeams : 1, carsPerTeam : 2});

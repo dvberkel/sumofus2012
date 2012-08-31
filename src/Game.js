@@ -176,6 +176,21 @@
 
 	giveAccelerationUpgradeTo : function(team,car){
 	    this.get("playerCars")[team][car].upgradeAcceleration();
+	},
+
+	pause : function(){
+	    var currentStatus = this.get("status");
+	    if(currentStatus == "paused"){
+	        return;
+	    }
+	    this.set("prePausedStatus",currentStatus);
+	    this.set("status","paused");
+	},
+
+	resume : function(){
+	    if(this.get("status") == "paused"){
+	        this.set("status",this.get("prePausedStatus"));
+	    }
 	}
     });
 
