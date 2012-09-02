@@ -110,7 +110,7 @@
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
-				var speed = 0;
+				var speed = '+';
 			var angle = this.options.angle;
 			var carColor = this.model.get("color");
 
@@ -189,11 +189,8 @@
 		},
 
 		render : function() {
-			//var position = this.options.position;
-			//this.element.attr("x", position.x);
-			//this.element.attr("y", position.y);
+			/* Do nothing */
 		},
-
 	});
 
 	SumOfUs.Car = Car;

@@ -419,7 +419,8 @@
 	var TrackNodeView = Backbone.View.extend({
 		initialize : function() {
 			this.element = this.TrackNode()
-
+			this.carObject = undefined;
+			
 			this.model.bind("change", function() {
 				this.render();
 			}, this);
@@ -452,9 +453,10 @@
 				});
 				roadObject.element.click(this.isClicked);
 
+				this.carObject = roadObject;
+
 				roadSet.push(roadObject);
 			}
-
 
 			return roadSet;
 		},
@@ -465,25 +467,29 @@
 
 		render : function() {
 			if(this.model.get("highlighted")){
-			    this.element.attr("fill","green");
+				this.element.attr("fill","green");
 			} else {
 				this.element.attr("fill","white");
 			}
-	
-            //Can't really figure out how to remove the old car.
+
+			//Can't really figure out how to remove the old car.
 			//I'm just creating a new view if this node is occupied.
 			if(this.model.isOccupied()){
 				var x = this.options.beginPoint.x;
 				var y = this.options.beginPoint.y;
-				roadObject = new SumOfUs.CarView({
+				var roadObject = new SumOfUs.CarView({
 					model : this.model.get("occupiedBy"),
 					paper : this.options.paper,
 					angle : 0,
 					position : {x : x + 5, y : y + 5},
 				});
-    			this.element.push(roadObject);
+				this.carObject = roadObject;	
+				this.element.push(roadObject);
+			} else if (this.carObject != undefined) {
+				/* Noud - I don't know why it does not remove the car. */
+				this.carObject.element.remove();
 			}
-
+ 
 			return this;
 		}
 
@@ -577,7 +583,81 @@
 		},
 
 		leftRoad : function() {
-			/* Pass */
+			var direction  = this.options.direction;
+			var beginPoint = this.options.beginPoint;
+			var endPoint   = this.options.endPoint;
+			var width      = this.model.get("width");
+			var length     = this.model.get("length");
+
+			var bx = beginPoint.x;
+			var by = beginPoint.y;
+			var ex = endPoint.x;
+			var ey = endPoint.y;
+			
+			var roadSet = this.paper().set();
+			var roadObject = this.paper().rect(
+				ex, by-1, bx - ex, 1
+			);
+			roadObject.attr("stroke", "black");
+			
+			roadSet.push(roadObject);
+
+			roadObject = this.paper().rect(
+				ex, by, bx - ex, 1
+			);
+			roadObject.attr("stroke", "black");
+
+			roadSet.push(roadObject);
+			var spaceWidth  = (bx - ex) / length;
+			var spaceHeight = (by - ey) / width;
+
+			/* Map over all TrackNodes. */
+			for (var i = 0; i < length; i++) {
+				for (var j = 0; j < width; j++) {
+					var center = {
+						x : bx - (i + 1/2)*spaceWidth,
+						y : by + (j + 1/2)*spaceHeight,
+					};
+					var begin = {
+						x : bx - (i + 1) * spaceWidth,
+						y : by + j * spaceHeight,
+					};
+				
+					roadObject = new SumOfUs.TrackNodeView({
+						model : this.model.get("nodes")[i][j],
+						callback : this.options.callback,
+						paper : this.options.paper,
+						place : { xi : i, xj : j },
+						beginPoint : { 
+							x : begin.x + 4,
+							y : begin.y + 4
+						},
+						measures : {
+							length : spaceWidth - 8,
+							height : spaceHeight - 8,
+							edge : 2,
+						},
+					});
+					roadSet.push(roadObject);
+	
+				}
+			}
+
+			/* Marks */
+			for (var j = 1; j < width; j++) {
+				for (var i = 0; i < 2*length; i++) {
+					var x = bx - (i + 1/2)/2 * spaceWidth;
+					var y = by + j * spaceHeight;
+
+					roadObject = this.paper().rect(
+						x-5, y-1, 10, 2
+					);
+					roadObject.attr("fill", "black");
+					roadSet.push(roadObject);
+				}
+			}
+
+			return roadSet;
 		},
 
 		upRoad : function() {

@@ -52,6 +52,14 @@
 			endPoint : {x : 100 + 10*60, y : 100 + 4*40},
 		});
 
+		var CarObject = new SumOfUs.CarView({
+			model : cars[0][0],
+			paper : paper,
+			angle : 0,
+			position : {x : 5, y : 5},
+		});
+		CarObject.element.remove();
+
 		demoGame.start();
 
 		(function loop(){
