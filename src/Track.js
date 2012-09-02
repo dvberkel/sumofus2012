@@ -448,7 +448,7 @@
 				roadObject = new SumOfUs.CarView({
 					model : this.model.get("occupiedBy"),
 					paper : this.options.paper,
-					angle : 0,
+					angle : this.options.rotation,
 					position : {x : x + 5, y : y + 5},
 				});
 				roadObject.element.click(this.isClicked);
@@ -480,7 +480,7 @@
 				var roadObject = new SumOfUs.CarView({
 					model : this.model.get("occupiedBy"),
 					paper : this.options.paper,
-					angle : 0,
+					angle : this.options.rotation,
 					position : {x : x + 5, y : y + 5},
 				});
 				this.carObject = roadObject;	
@@ -559,6 +559,7 @@
 							height : spaceHeight - 8,
 							edge : 2,
 						},
+						rotations : 0,
 					});
 					roadSet.push(roadObject);
 	
@@ -596,7 +597,7 @@
 			
 			var roadSet = this.paper().set();
 			var roadObject = this.paper().rect(
-				ex, by-1, bx - ex, 1
+				ex, ey-1, bx - ex, 1
 			);
 			roadObject.attr("stroke", "black");
 			
@@ -609,7 +610,7 @@
 
 			roadSet.push(roadObject);
 			var spaceWidth  = (bx - ex) / length;
-			var spaceHeight = (by - ey) / width;
+			var spaceHeight = (ey - by) / width;
 
 			/* Map over all TrackNodes. */
 			for (var i = 0; i < length; i++) {
@@ -637,6 +638,7 @@
 							height : spaceHeight - 8,
 							edge : 2,
 						},
+						rotation : 180,
 					});
 					roadSet.push(roadObject);
 	
@@ -661,11 +663,161 @@
 		},
 
 		upRoad : function() {
-			/* Pass */
+			var direction  = this.options.direction;
+			var beginPoint = this.options.beginPoint;
+			var endPoint   = this.options.endPoint;
+			var width      = this.model.get("width");
+			var length     = this.model.get("length");
+
+			var bx = beginPoint.x;
+			var by = beginPoint.y;
+			var ex = endPoint.x;
+			var ey = endPoint.y;
+			
+			var roadSet = this.paper().set();
+			var roadObject = this.paper().rect(
+				bx-1, ey, 1, by - ey
+			);
+			roadObject.attr("stroke", "black");
+			
+			roadSet.push(roadObject);
+
+			roadObject = this.paper().rect(
+				ex, ey, 1, by - ey
+			);
+			roadObject.attr("stroke", "black");
+
+			roadSet.push(roadObject);
+			var spaceWidth  = (ex - bx) / width;
+			var spaceHeight = (by - ey) / length;
+
+			/* Map over all TrackNodes. */
+			for (var i = 0; i < length; i++) {
+				for (var j = 0; j < width; j++) {
+					var center = {
+						x : bx + (j + 1/2)*spaceWidth,
+						y : by - (i + 1/2)*spaceHeight,
+					};
+					var begin = {
+						x : bx + j * spaceWidth,
+						y : by - (i + 1) * spaceHeight,
+					};
+				
+					roadObject = new SumOfUs.TrackNodeView({
+						model : this.model.get("nodes")[i][j],
+						callback : this.options.callback,
+						paper : this.options.paper,
+						place : { xi : i, xj : j },
+						beginPoint : { 
+							x : begin.x + 4,
+							y : begin.y + 4
+						},
+						measures : {
+							length : spaceWidth - 8,
+							height : spaceHeight - 8,
+							edge : 2,
+						},
+						rotation : 270,
+					});
+					roadSet.push(roadObject);
+	
+				}
+			}
+
+			/* Marks */
+			for (var j = 1; j < width; j++) {
+				for (var i = 0; i < 2*length; i++) {
+					var x = bx + j * spaceWidth;
+					var y = by - (i + 1/2)/2 * spaceHeight;
+
+					roadObject = this.paper().rect(
+						x-1, y-5, 2, 10
+					);
+					roadObject.attr("fill", "black");
+					roadSet.push(roadObject);
+				}
+			}
+
+			return roadSet;
 		},
 
 		downRoad : function() {
-			/* Pass */
+			var direction  = this.options.direction;
+			var beginPoint = this.options.beginPoint;
+			var endPoint   = this.options.endPoint;
+			var width      = this.model.get("width");
+			var length     = this.model.get("length");
+
+			var bx = beginPoint.x;
+			var by = beginPoint.y;
+			var ex = endPoint.x;
+			var ey = endPoint.y;
+			
+			var roadSet = this.paper().set();
+			var roadObject = this.paper().rect(
+				bx-1, by, 1, ey - by
+			);
+			roadObject.attr("stroke", "black");
+			
+			roadSet.push(roadObject);
+
+			roadObject = this.paper().rect(
+				ex, by, 1, ey - by
+			);
+			roadObject.attr("stroke", "black");
+
+			roadSet.push(roadObject);
+			var spaceWidth  = (bx - ex) / width;
+			var spaceHeight = (ey - by) / length;
+
+			/* Map over all TrackNodes. */
+			for (var i = 0; i < length; i++) {
+				for (var j = 0; j < width; j++) {
+					var center = {
+						x : bx + (j + 1/2)*spaceWidth,
+						y : by - (i + 1/2)*spaceHeight,
+					};
+					var begin = {
+						x : bx - (j + 1) * spaceWidth,
+						y : by + i * spaceHeight,
+					};
+				
+					roadObject = new SumOfUs.TrackNodeView({
+						model : this.model.get("nodes")[i][j],
+						callback : this.options.callback,
+						paper : this.options.paper,
+						place : { xi : i, xj : j },
+						beginPoint : { 
+							x : begin.x + 4,
+							y : begin.y + 4
+						},
+						measures : {
+							length : spaceWidth - 8,
+							height : spaceHeight - 8,
+							edge : 2,
+						},
+						rotation : 90,
+					});
+					roadSet.push(roadObject);
+	
+				}
+			}
+
+			/* Marks */
+			for (var j = 1; j < width; j++) {
+				for (var i = 0; i < 2*length; i++) {
+					var x = bx - j * spaceWidth;
+					var y = by + (i + 1/2)/2 * spaceHeight;
+
+					roadObject = this.paper().rect(
+						x-1, y-5, 2, 10
+					);
+					roadObject.attr("fill", "black");
+					roadSet.push(roadObject);
+				}
+			}
+
+			return roadSet;
 		},
 
 		Road : function() {

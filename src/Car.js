@@ -123,6 +123,15 @@
 			carObject.attr("stroke", "black");
 			carSet.push(carObject);
 
+			if (this.model.hasUpgradedSpeed()) {
+				carObject = this.paper().rect(
+					position.x+1, position.y+8, 40, 10
+				);
+				carObject.attr("stroke", "black");
+				carObject.attr("fill", "black");
+				carSet.push(carObject);
+			}
+
 
 			/* Roof of car */
 			carObject = this.paper().rect(
@@ -157,6 +166,23 @@
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
+			/* Uitlaat */
+			if (this.model.hasUpgradedSpeed()) {
+				carObject = this.paper().rect(
+					position.x, position.y+4, 1, 5
+				);
+				carObject.attr("fill", "black");
+				carObject.attr("stroke", "black");
+				carSet.push(carObject);
+
+				carObject = this.paper().rect(
+					position.x, position.y+17, 1, 5
+				);
+				carObject.attr("fill", "black");
+				carObject.attr("stroke", "black");
+				carSet.push(carObject);
+			}
+
 			/* Direction */
 			carObject = this.paper().text(
 				position.x+36, position.y+11, ">"
@@ -173,12 +199,6 @@
 			return carSet;
 		},
 
-		carAngle : function() {
-			var direction = this.model.get("direction");
-			/* TODO: make a direction to angle function */
-			return parseInt(direction);
-		},
-		
 		paper : function() {
 			return this.options.paper;
 		},
