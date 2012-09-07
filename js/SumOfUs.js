@@ -57,6 +57,7 @@
 			track : demoTrack, 
 			numberOfTeams : 2, 
 			carsPerTeam : 2,
+			secondsPerMove : 10
 		});
 
 
@@ -143,6 +144,15 @@
 
 
 		demoGame.start();
+
+		var timerView = new SumOfUs.TimerView({
+		                     model: demoGame.get("timer"),
+				     paper : paper, 
+				     x : 840, 
+				     y : 50,
+				     height : 15,
+				     width : 100 });
+
 
 
 		(function loop(){

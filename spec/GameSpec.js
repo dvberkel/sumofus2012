@@ -26,6 +26,7 @@ describe("a Game", function(){
 	expect(game.get("playerDefaultAcceleration")).toEqual(1);
 	expect(game.get("pointsPerCheckpoint")).toEqual(10);
 	expect(game.get("checkpointOrder")).toEqual(["A","B"]);
+	expect(game.get("secondsPerMove")).toEqual(30);
 	var scores = game.get("scores");
 	
 	for(var team = 0; team < 4; team++){
@@ -268,6 +269,28 @@ describe("a Game", function(){
 	    expect(nodes[1][3]).not.toBeOccupied();
 	    expect(nodes[3][3]).not.toBeOccupied();
 	    expect(nodes[5][3]).not.toBeOccupied();
+	});
+
+	it("should let moves time out", function(){
+	    game = new SumOfUs.Game({track : track, numberOfTeams : 2, carsPerTeam : 2});
+	    game.assignLocationToPlayerCar(0,0,nodes[0][0],"one->two");
+	    game.assignLocationToPlayerCar(0,1,nodes[0][1],"one->two");
+	    game.assignLocationToPlayerCar(1,0,nodes[0][2],"one->two");
+	    game.assignLocationToPlayerCar(1,1,nodes[0][3],"one->two");
+	    game.start();
+
+	    game.playerClickedOnNode(nodes[1][0]);
+	    game.playerClickedOnNode(nodes[1][0]);
+	    expect(game).toBeAtTurn([0,1]);
+	    game.timeOut();
+	    expect(game).toBeAtTurn([1,0]);
+
+
+
+	    game.playerClickedOnNode(nodes[1][2]);
+	    game.timeOut();
+	    expect(game).toBeAtTurn([0,0]);
+	    expect(game).toHaveCompletedRounds(1);
 	});
     });
 
