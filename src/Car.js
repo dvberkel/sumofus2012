@@ -106,7 +106,7 @@
 		},
 
 		Car : function() {
-			var position = this.options.position;
+			var position = this.model.get("xyposition");
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
@@ -114,10 +114,15 @@
 			var angle = this.options.angle;
 			var carColor = this.model.get("color");
 
+			var carWidth = this.options.carWidth;
+			var carHeight = this.options.carHeight;
+			var bx = position.x - carWidth/2;
+			var by = position.y - carHeight/2;
+
 			/* Foundation of car */
 			var carSet = this.paper().set();
 			var carObject = this.paper().rect(
-				position.x+1, position.y+1, 40, 20, 1
+				bx+1, by+1, carWidth, carHeight-2, 1
 			);
 			carObject.attr("fill", carColor);
 			carObject.attr("stroke", "black");
@@ -125,7 +130,7 @@
 
 			if (this.model.hasUpgradedSpeed()) {
 				carObject = this.paper().rect(
-					position.x+1, position.y+8, 40, 10
+					bx+1, by + carHeight/4, carWidth, carHeight/2
 				);
 				carObject.attr("stroke", "black");
 				carObject.attr("fill", "black");
@@ -135,7 +140,7 @@
 
 			/* Roof of car */
 			carObject = this.paper().rect(
-				position.x+11, position.y+3, 20, 16, 2
+				bx + carWidth/4, by + 1/6*carHeight, carWidth/2, 4/6*carHeight, 2
 			);
 			carObject.attr("fill", "lightgrey");
 			carObject.attr("stroke", "black");
@@ -143,25 +148,25 @@
 
 			/* Fire-up this car with some awesome wheels */
 			carObject = this.paper().rect(
-				position.x+5, position.y, 7, 1
+				bx + carWidth/7, by, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
 			carObject = this.paper().rect(
-				position.x+5, position.y+21, 7, 1
+				bx + carWidth/7, by + carHeight-1, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);			
 
 			carObject = this.paper().rect(
-				position.x+30, position.y, 7, 1
+				bx + 5/7*carWidth, by, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
 			carObject = this.paper().rect(
-				position.x+30, position.y+21, 7, 1
+				bx + 5/7*carWidth, by + carHeight-1, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
@@ -169,14 +174,14 @@
 			/* Uitlaat */
 			if (this.model.hasUpgradedSpeed()) {
 				carObject = this.paper().rect(
-					position.x, position.y+4, 1, 5
+					bx, by + 1/6*carHeight, 1, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 
 				carObject = this.paper().rect(
-					position.x, position.y+17, 1, 5
+					bx, by + 4/5*carHeight, 1, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
@@ -185,14 +190,14 @@
 
 			/* Direction */
 			carObject = this.paper().text(
-				position.x+36, position.y+11, ">"
+				position.x + 3/8*carWidth, position.y, ">"
 			);
 			carSet.push(carObject);
 
-			carSet.rotate(angle, position.x+21, position.y+11);
+			carSet.rotate(angle, position.x, position.y);
 
 			carObject = this.paper().text(
-				position.x+21, position.y+11, speed
+				position.x, position.y, speed
 			);
 			carSet.push(carObject);
 
@@ -209,7 +214,9 @@
 		},
 
 		render : function() {
-			/* Do nothing */
+			var position = this.model.get("xyposition");
+			this.element.attr("cx", position.x);
+			this.element.attr("cy", position.y);
 		},
 	});
 

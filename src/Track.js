@@ -445,11 +445,14 @@
 			roadSet.push(roadObject);
 
 			if (this.model.isOccupied()) {
+				var currentCar = this.model.get("occupiedBy");
+				currentCar.set("xyposition", {x : x + length/2, y : y + height/2});
 				roadObject = new SumOfUs.CarView({
-					model : this.model.get("occupiedBy"),
+					model : currentCar,
 					paper : this.options.paper,
 					angle : this.options.rotation,
-					position : {x : x + 5, y : y + 5},
+					carWidth : 40, /* Magic numbers */
+					carHeight : 20,
 				});
 				roadObject.element.click(this.isClicked);
 
@@ -472,23 +475,19 @@
 				this.element.attr("fill","white");
 			}
 
-			//Can't really figure out how to remove the old car.
-			//I'm just creating a new view if this node is occupied.
 			if(this.model.isOccupied()){
+				var length = this.options.measures.length;
+				var height = this.options.measures.height;
 				var x = this.options.beginPoint.x;
 				var y = this.options.beginPoint.y;
-				var roadObject = new SumOfUs.CarView({
-					model : this.model.get("occupiedBy"),
-					paper : this.options.paper,
-					angle : this.options.rotation,
-					position : {x : x + 5, y : y + 5},
+
+				var currentCar = this.model.get("occupiedBy");
+				currentCar.set("xyposition", {
+					x : x + length/2, 
+					y : y + height/2
 				});
-				this.carObject = roadObject;	
-				this.element.push(roadObject);
-			} else if (this.carObject != undefined) {
-				/* Noud - I don't know why it does not remove the car. */
-				this.carObject.element.remove();
-			}
+
+			} 
  
 			return this;
 		}
@@ -625,7 +624,7 @@
 					};
 				
 					roadObject = new SumOfUs.TrackNodeView({
-						model : this.model.get("nodes")[i][j],
+						model : this.model.get("nodes")[i][width-j-1],
 						callback : this.options.callback,
 						paper : this.options.paper,
 						place : { xi : i, xj : j },
@@ -889,15 +888,23 @@
 						y : by + j * spaceHeight,
 					};
 					
-					crossingObject = this.paper().rect(
-						begin.x + 4, 
-						begin.y + 4, 
-						spaceWidth - 8, 
-						spaceHeight - 8, 
-						2
-					);
-					crossingObject.attr("stroke", "gray");
-
+					crossingObject = new SumOfUs.TrackNodeView({
+						model : this.model.get("nodes")[i][j],
+						callback : this.options.callback,
+						paper : this.options.paper,
+						place : { xi : i, xj : j },
+						beginPoint : { 
+							x : begin.x + 4,
+							y : begin.y + 4
+						},
+						measures : {
+							length : spaceWidth - 8,
+							height : spaceHeight - 8,
+							edge : 2,
+						},
+						rotations : 0,
+					});
+					
 					crossingSet.push(crossingObject);
 				}
 			}
