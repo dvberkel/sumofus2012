@@ -152,6 +152,23 @@ beforeEach(function() {
 
 	toHaveStatus : function(expectedStatus){
 	    return this.actual.get("status") == expectedStatus;
+	},
+
+	toHaveUpgradedSpeed : function(expectedSpeed){
+	    return this.actual.get("upgradedSpeed") == expectedSpeed;
+	},
+
+	toHaveUpgradedAcceleration : function(expectedAcceleration){
+	    return this.actual.get("upgradedAcceleration") == expectedAcceleration;
+	},
+
+	toBeUpgradedWithSpeed : function(){
+	    return this.actual.hasUpgradedSpeed();
+	},
+
+	toBeUpgradedWithAcceleration : function(){
+	    return this.actual.hasUpgradedAcceleration();
 	}
+
     });
 });

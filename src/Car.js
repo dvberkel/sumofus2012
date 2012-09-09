@@ -10,6 +10,8 @@
 	    npc : false,
 	    delayChance : 0,
             color : undefined,
+	    upgradedSpeed : 6,
+	    upgradedAcceleration : 2
 	},
 
 	initialize : function(){
@@ -74,7 +76,23 @@
 	},
 
         changeHighlight : function(setting){
-	   this.set("highlighted", setting);
+	    this.set("highlighted", setting);
+	},
+
+	upgradeSpeed : function(){
+	    this.set("maxSpeed", this.get("upgradedSpeed"));
+	},
+
+	upgradeAcceleration : function(){
+	   this.set("acceleration", this.get("upgradedAcceleration"));
+	},
+
+	hasUpgradedSpeed : function(){
+	    return this.get("maxSpeed") == this.get("upgradedSpeed");
+	},
+
+	hasUpgradedAcceleration : function(){
+	    return this.get("acceleration") == this.get("upgradedAcceleration");
 	}
     });
 
@@ -88,27 +106,41 @@
 		},
 
 		Car : function() {
-			var position = this.options.position;
+			var position = this.model.get("xyposition");
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
-				var speed = 0;
+				var speed = '+';
 			var angle = this.options.angle;
 			var carColor = this.model.get("color");
+
+			var carWidth = this.options.carWidth;
+			var carHeight = this.options.carHeight;
+			var bx = position.x - carWidth/2;
+			var by = position.y - carHeight/2;
 
 			/* Foundation of car */
 			var carSet = this.paper().set();
 			var carObject = this.paper().rect(
-				position.x+1, position.y+1, 40, 20, 1
+				bx+1, by+1, carWidth, carHeight-2, 2
 			);
 			carObject.attr("fill", carColor);
 			carObject.attr("stroke", "black");
 			carSet.push(carObject);
 
+			if (this.model.hasUpgradedSpeed()) {
+				carObject = this.paper().rect(
+					bx+1, by + carHeight/4, carWidth, carHeight/2
+				);
+				carObject.attr("stroke", "black");
+				carObject.attr("fill", "black");
+				carSet.push(carObject);
+			}
+
 
 			/* Roof of car */
 			carObject = this.paper().rect(
-				position.x+11, position.y+3, 20, 16, 2
+				bx + carWidth/4, by + 1/6*carHeight, carWidth/2, 4/6*carHeight, 2
 			);
 			carObject.attr("fill", "lightgrey");
 			carObject.attr("stroke", "black");
@@ -116,61 +148,76 @@
 
 			/* Fire-up this car with some awesome wheels */
 			carObject = this.paper().rect(
-				position.x+5, position.y, 7, 1
+				bx + carWidth/7, by, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
 			carObject = this.paper().rect(
-				position.x+5, position.y+21, 7, 1
+				bx + carWidth/7, by + carHeight-1, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);			
 
 			carObject = this.paper().rect(
-				position.x+30, position.y, 7, 1
+				bx + 5/7*carWidth, by, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
 			carObject = this.paper().rect(
-				position.x+30, position.y+21, 7, 1
+				bx + 5/7*carWidth, by + carHeight-1, carWidth/5, 1
 			);
 			carObject.attr("fill", "black");
 			carSet.push(carObject);
 
+			/* Uitlaat */
+			if (this.model.hasUpgradedSpeed()) {
+				carObject = this.paper().rect(
+					bx, by + 1/6*carHeight, 1, 1/6*carHeight
+				);
+				carObject.attr("fill", "black");
+				carObject.attr("stroke", "black");
+				carSet.push(carObject);
+
+				carObject = this.paper().rect(
+					bx, by + 4/5*carHeight, 1, 1/6*carHeight
+				);
+				carObject.attr("fill", "black");
+				carObject.attr("stroke", "black");
+				carSet.push(carObject);
+			}
+
 			/* Direction */
 			carObject = this.paper().text(
-				position.x+36, position.y+11, ">"
+				position.x + 3/8*carWidth, position.y, ">"
 			);
 			carSet.push(carObject);
 
-			carSet.rotate(angle, position.x+21, position.y+11);
+			carSet.rotate(angle, position.x, position.y);
 
 			carObject = this.paper().text(
-				position.x+21, position.y+11, speed
+				position.x, position.y, speed
 			);
 			carSet.push(carObject);
 
 			return carSet;
 		},
 
-		carAngle : function() {
-			var direction = this.model.get("direction");
-			/* TODO: make a direction to angle function */
-			return parseInt(direction);
-		},
-		
 		paper : function() {
 			return this.options.paper;
 		},
 
-		render : function() {
-			var position = this.options.position;
-			this.element.attr("x", position.x);
-			this.element.attr("y", position.y);
+		foo : function() {
+		    console.log("foo");
+
 		},
 
+		render : function() {
+			var position = this.model.get("xyposition");
+			this.element.attr("cx", position.x);
+			this.element.attr("cy", position.y);
+		},
 	});
 
 	SumOfUs.Car = Car;
