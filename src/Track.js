@@ -419,7 +419,6 @@
 	var TrackNodeView = Backbone.View.extend({
 		initialize : function() {
 			this.element = this.TrackNode()
-			this.carObject = undefined;
 			
 			this.model.bind("change", function() {
 				this.render();
@@ -450,13 +449,12 @@
 				roadObject = new SumOfUs.CarView({
 					model : currentCar,
 					paper : this.options.paper,
+					callback : this.options.callback,
 					angle : this.options.rotation,
-					carWidth : 40, /* Magic numbers */
-					carHeight : 20,
+					carWidth : 3/4*length, 
+					carHeight : 3/5*height,
 				});
 				roadObject.element.click(this.isClicked);
-
-				this.carObject = roadObject;
 
 				roadSet.push(roadObject);
 			}

@@ -122,7 +122,7 @@
 			/* Foundation of car */
 			var carSet = this.paper().set();
 			var carObject = this.paper().rect(
-				bx+1, by+1, carWidth, carHeight-2, 1
+				bx+1, by+1, carWidth, carHeight-2, 2
 			);
 			carObject.attr("fill", carColor);
 			carObject.attr("stroke", "black");
