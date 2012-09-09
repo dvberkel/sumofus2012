@@ -20,6 +20,10 @@ describe("a Car", function(){
 	expect(car).toHaveDelayChance(0);
 	expect(car).toHavePassedCheckpoints([]);
         expect(car).not.toHaveADefinedColor();
+	expect(car).toHaveUpgradedSpeed(6);
+	expect(car).toHaveUpgradedAcceleration(2);
+	expect(car).not.toBeUpgradedWithSpeed();
+	expect(car).not.toBeUpgradedWithAcceleration();
     });
 
     it("should be highlightable", function(){
@@ -160,5 +164,31 @@ describe("a Car", function(){
         expect(count4+count5).toEqual(1000);
         expect(count4).toBeGreaterThan(400);
         expect(count5).toBeGreaterThan(400);
+    });
+
+    it("should have upgradeable top speed", function(){
+        car.upgradeSpeed();
+	expect(car).toBeUpgradedWithSpeed();
+	expect(car).toHaveMaxSpeed(6);
+    });
+
+    it("should have upgradeable acceleration", function(){
+        car.upgradeAcceleration();
+	expect(car).toBeUpgradedWithAcceleration();
+	expect(car).toHaveAcceleration(2);
+    });
+
+    it("shouldn't be able to have its speed upgraded twice", function(){
+        car.upgradeSpeed();
+	var speed = car.get("maxSpeed");
+	car.upgradeSpeed();
+	expect(car).toHaveMaxSpeed(speed);
+    });
+
+    it("shouldn't be able to have its acceleration  upgraded twice", function(){
+        car.upgradeAcceleration();
+	var acceleration = car.get("acceleration");
+	car.upgradeAcceleration();
+	expect(car).toHaveAcceleration(acceleration);
     });
 });

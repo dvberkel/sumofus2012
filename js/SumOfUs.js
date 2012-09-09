@@ -11,12 +11,46 @@
 	})();
 
 	$(function(){
-		var paper = Raphael("viewport", 1000, 500);
-		paper.rect(0, 0, 200+10*60, 200+4*40).attr({ fill : "#ffffff" });
+		var paper = Raphael("viewport", 1000, 700);
+		paper.rect(0, 0, 1000, 700).attr({ fill : "#ffffff" });
 
 		var demoTrack = new SumOfUs.Track();
-		var demoRoad = demoTrack.addSegment(
-			"road", {width : 4, length : 10, npcTraffic : "oneway"}
+
+		var roads = []
+		var crossings = []
+
+		for (var i = 0; i < 4; i++) {
+			roads.push(demoTrack.addSegment(
+				"road", {width : 4, length : 4}
+			));
+			crossings.push(demoTrack.addSegment(
+				"crossing", {width : 4, height : 4}
+			));
+		}	
+
+		demoTrack.connectSegments(
+			roads[0].get("endPoints").one, crossings[0].get("endPoints").north
+		);
+		demoTrack.connectSegments(
+			roads[0].get("endPoints").two, crossings[1].get("endPoints").south
+		);
+		demoTrack.connectSegments(
+			roads[1].get("endPoints").one, crossings[1].get("endPoints").east
+		);
+		demoTrack.connectSegments(
+			roads[1].get("endPoints").two, crossings[2].get("endPoints").west
+		);
+		demoTrack.connectSegments(
+			roads[2].get("endPoints").one, crossings[2].get("endPoints").south
+		);
+		demoTrack.connectSegments(
+			roads[2].get("endPoints").two, crossings[3].get("endPoints").north
+		);
+		demoTrack.connectSegments(
+			roads[3].get("endPoints").one, crossings[3].get("endPoints").west
+		);
+		demoTrack.connectSegments(
+			roads[3].get("endPoints").two, crossings[0].get("endPoints").east
 		);
 
 		var demoGame = new SumOfUs.Game({
@@ -25,11 +59,8 @@
 			carsPerTeam : 2,
 		});
 
-		var ends = demoRoad.get("endPoints");
-		
-		demoTrack.connectSegments(ends.one, ends.two);
 
-		var nodes = demoRoad.get("nodes");
+		var nodes = roads[0].get("nodes");
 		var cars = demoGame.get("playerCars");
 
 		/* Assign colors to cars */
@@ -43,14 +74,103 @@
 		demoGame.assignLocationToPlayerCar(1,0,nodes[0][2],"one->two");
 		demoGame.assignLocationToPlayerCar(1,1,nodes[0][3],"one->two");
 
+		new SumOfUs.CrossingView({
+			model : crossings[0],
+			callback : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			beginPoint : {x : 10, y : 10},
+			endPoint : {x : 200, y : 200},
+		});
+
 		new SumOfUs.RoadView({
-			model : demoRoad,
-			game  : demoGame,
+			model : roads[0],
+			callback  : demoGame.playerClickedOnNode.bind(demoGame),
 			paper : paper,
 			direction : "right",
-			beginPoint : {x : 100, y : 100},
-			endPoint : {x : 100 + 10*60, y : 100 + 4*40},
+			beginPoint : {x : 200, y : 15},
+			endPoint : {x : 200 + 4*60, y : 15 + 4*45},
 		});
+		
+		new SumOfUs.CrossingView({
+			model : crossings[1],
+			callback : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			beginPoint : {x : 440, y : 10},
+			endPoint : {x : 440 + 190, y : 10 + 190},
+		});
+
+		new SumOfUs.RoadView({
+			model : roads[1],
+			callback  : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			direction : "down",
+			beginPoint : {x : 625, y : 200},
+			endPoint : {x : 445, y : 200 + 4 * 60},
+		});
+		
+		new SumOfUs.CrossingView({
+			model : crossings[2],
+			callback : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			beginPoint : {x : 440, y : 440},
+			endPoint : {x : 440 + 190, y : 440 + 190},
+		});
+
+		new SumOfUs.RoadView({
+			model : roads[2],
+			callback  : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			direction : "left",
+			beginPoint : {x : 440, y : 445},
+			endPoint : {x : 440 - 4*60, y : 445 + 4*45},
+		});
+		new SumOfUs.CrossingView({
+			model : crossings[3],
+			callback : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			beginPoint : {x : 10, y : 440},
+			endPoint : {x : 10 + 190, y : 440 + 190},
+		});
+
+		new SumOfUs.RoadView({
+			model : roads[3],
+			callback  : demoGame.playerClickedOnNode.bind(demoGame),
+			paper : paper,
+			direction : "up",
+			beginPoint : {x : 15, y : 440},
+			endPoint : {x : 15 + 4*45, y : 440 - 4*60},
+		});
+
+		var randomPositions = [
+			{x : 250 + parseInt(Math.random() * 25), 
+			 y : 250 + parseInt(Math.random() * 25)},
+			{x : 375 + parseInt(Math.random() * 25), 
+			 y : 250 + parseInt(Math.random() * 25)},
+			{x : 250 + parseInt(Math.random() * 25), 
+			 y : 375 + parseInt(Math.random() * 25)},
+			{x : 375 + parseInt(Math.random() * 25), 
+			 y : 375 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 100 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 25), 
+			 y : 200 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 300 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 400 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 500 + parseInt(Math.random() * 25)},
+		];
+
+		for (var i = 0; i < randomPositions.length; i++)
+			new SumOfUs.TreeView({
+				paper : paper,
+				position : randomPositions[i],
+				color : "lightgreen",
+				ratio : 30,
+			});
+
+		demoGame.start();
 
 
 		(function loop(){

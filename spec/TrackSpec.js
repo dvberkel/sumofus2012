@@ -5,6 +5,7 @@ describe("a TrackNode", function() {
 	var directions = node.get("directions");
 	var connections = node.get("connections");
 	expect(node).not.toBeOccupied();
+	expect(node).not.toBeHighlighted();
 	expect(directions).toEqual([]);
 	expect(connections).toEqual([]);
 	expect(node).not.toBeACheckpoint();
