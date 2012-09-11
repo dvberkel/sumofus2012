@@ -6,7 +6,8 @@
 	    roundsCompleted : 0,
 	    playerDefaultMaxSpeed : 5,
 	    playerDefaultAcceleration : 1,
-	    pointsPerCheckpoint : 10
+	    pointsPerCheckpoint : 10,
+	    secondsPerMove : 30
 	},
 
 	initialize : function(){
@@ -34,6 +35,8 @@
 	    if(this.get("checkpointOrder") == undefined){
 	        this.set("checkpointOrder",["A","B"]);
 	    }
+
+	    this.set("timer",new SumOfUs.Timer());
         },
 
 	assignLocationToPlayerCar : function(teamNumber, carNumber, position, direction){
@@ -75,6 +78,10 @@
 	    }
 	    car.changeHighlight(true);
 	    this.set("status","waiting for player car move");
+
+	    if(turn[1] == 0){
+	        this.startTimer();
+	    }
 	},
 
 	checkIfMoveIsValid : function(node){
@@ -114,6 +121,9 @@
 		node.changeHighlight(false);
 		car.changeHighlight(false);
 
+		if(turn[1] == this.get("carsPerTeam")-1){
+		    this.stopTimer();
+		}
 		this.advanceTurn();
 		this.setupNextTurn();
             } else {
@@ -195,7 +205,47 @@
 
 	addNPC : function(node){
 	    this.get("track").addNonPlayerCar(node,0);
+	},
+
+	timeOut : function(){
+	    var status = this.get("status");
+	    var turn = this.get("currentTurn");
+	    var car = this.get("playerCars")[turn[0]][turn[1]]
+	    if(status == "waiting for player car move"){
+	        var potentialMoves = this.get("potentialMoves");
+		for each(var move in potentialMoves){
+		    move.node.changeHighlight(false);
+		}
+		car.changeHighlight(false);
+	        while(this.get("currentTurn")[1] != this.get("carsPerTeam") -1){
+		    this.advanceTurn();
+		}
+		this.advanceTurn();
+		this.setupNextTurn();
+	    } else if( status == "waiting for confirmation of car move"){
+		var move = this.get("selectedMove");
+		move.node.changeHighlight(false);
+		car.changeHighlight(false);
+	        while(this.get("currentTurn")[1] != this.get("carsPerTeam") -1){
+		    this.advanceTurn();
+		}
+		this.advanceTurn();
+		this.setupNextTurn();
+	    }
+	},
+
+	startTimer : function(){
+	    this.get("timer").start(this.get("secondsPerMove"),this.timeOut.bind(this));
+	},
+
+	stopTimer : function(){
+	    this.get("timer").stop();
+	},
+
+	resumeTimer : function(){
+	    this.get("timer").resume();
 	}
+
     });
 
     SumOfUs.Game = Game;
