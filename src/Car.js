@@ -201,6 +201,8 @@
 				position.x, position.y, speed
 			);
 			carSet.push(carObject);
+			this.carSpeedNumber = carObject;
+
                         this.currentPosition = position;
 
 			return carSet;
@@ -222,6 +224,16 @@
 
                         this.currentPosition = position;
 
+			if (this.model.get("speed") != undefined)
+				var speed = this.model.get("speed");
+			else
+				var speed = '+';
+			this.carSpeedNumber.remove();
+			this.carSpeedNumber = this.paper().text(
+				position.x, position.y, speed
+			);
+
+
 			if(this.model.get("highlighted")) {
 				/* Glow car */
 				//this.glowElement = this.element.glow(1);
@@ -229,6 +241,9 @@
 				/* Unglow car */
 				//this.glowElement.glow(-1);
 			}
+
+			var carAngle = this.model.get("position").get("views")[0].getAngle();
+			/* Do something with the angle etc... */
 
                         return this;
 		},

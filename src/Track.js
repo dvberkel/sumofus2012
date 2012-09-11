@@ -469,9 +469,11 @@
                 getCenter : function() {
                        return { x : this.options.beginPoint.x + this.options.measures.length/2,
                                 y : this.options.beginPoint.y + this.options.measures.height/2 };
-                }
+                },
                 
-
+		getAngle : function(direction) {
+			/* give back angle with given direction, left/right/up/down etc... */
+		}
 
 	});
 
