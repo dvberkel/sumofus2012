@@ -128,9 +128,9 @@
 			carObject.attr("stroke", "black");
 			carSet.push(carObject);
 
-			if (this.model.hasUpgradedSpeed()) {
+			if (this.model.hasUpgradedAcceleration()) {
 				carObject = this.paper().rect(
-					bx+1, by + carHeight/4, carWidth, carHeight/2
+					bx+1, by + 2/5*carHeight, carWidth, carHeight/5
 				);
 				carObject.attr("stroke", "black");
 				carObject.attr("fill", "black");
@@ -174,19 +174,20 @@
 			/* Uitlaat */
 			if (this.model.hasUpgradedSpeed()) {
 				carObject = this.paper().rect(
-					bx, by + 1/6*carHeight, 1, 1/6*carHeight
+					bx-1, by + 1/6*carHeight, 2, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 
 				carObject = this.paper().rect(
-					bx, by + 4/5*carHeight, 1, 1/6*carHeight
+					bx-1, by + 4/6*carHeight, 2, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 			}
+
 
 			/* Direction */
 			carObject = this.paper().text(
@@ -220,6 +221,15 @@
                                                position.y-this.currentPosition.y);
 
                         this.currentPosition = position;
+
+			if(this.model.get("highlighted")) {
+				/* Glow car */
+				//this.glowElement = this.element.glow(1);
+			} else if (this.glowElement != undefined) {
+				/* Unglow car */
+				//this.glowElement.glow(-1);
+			}
+
                         return this;
 		},
 	});
