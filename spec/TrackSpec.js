@@ -9,6 +9,7 @@ describe("a TrackNode", function() {
 	expect(directions).toEqual([]);
 	expect(connections).toEqual([]);
 	expect(node).not.toBeACheckpoint();
+        expect(node.get("views")).toEqual([]);
     });
 
   
@@ -123,6 +124,14 @@ describe("a TrackNode", function() {
 
 	node1.connectTo(node2).along(npcdir);
 	expect( (function(){node1.connectTo(node2).along(npcdir);}) ).toThrow();
+    });
+
+    it("should allow views to be registered", function(){
+        var node = new SumOfUs.TrackNode({ directions : ["A"] });
+        node.addView(1);
+        node.addView(2);
+        expect(node.get("views").length).toEqual(2);
+       
     });
 });
 
