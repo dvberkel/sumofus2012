@@ -449,7 +449,6 @@
 			roadObject.click(function(){callback(node);});
 
 
-
 			return roadObject;
 		},
 
@@ -465,7 +464,14 @@
 			}
 
 			return this;
-		}
+		},
+
+                getCenter : function() {
+                       return { x : this.options.beginPoint.x + this.options.measures.length/2,
+                                y : this.options.beginPoint.y + this.options.measures.height/2 };
+                }
+                
+
 
 	});
 
