@@ -16,6 +16,7 @@
                 this.set("directions",[]);
 	    };
 	    this.set("connections",[]);
+            this.set("views",[]);
 	},
         
         changeHighlight : function(setting){
@@ -84,6 +85,12 @@
 	    }
 	    return res;
 	},
+
+        addView : function(view){
+            var views = this.get("views");
+            views.push(view);
+            this.set("views",views);
+        }
     });
 
     var TrackSegment = Backbone.Model.extend({
@@ -428,11 +435,11 @@
 		TrackNode : function() {
 			var x = this.options.beginPoint.x;
 			var y = this.options.beginPoint.y;
+                        this.model.addView(this);
 			var length = this.options.measures.length;
 			var height = this.options.measures.height;
 			var edge = this.options.measures.edge;
 
-			var roadSet = this.paper().set();
 			var roadObject = this.paper().rect(x, y, length, height, edge);
 			roadObject.attr("stroke", "gray");
 			roadObject.attr("fill", "white");
@@ -441,25 +448,9 @@
 			var node = this.model;
 			roadObject.click(function(){callback(node);});
 
-			roadSet.push(roadObject);
 
-			if (this.model.isOccupied()) {
-				var currentCar = this.model.get("occupiedBy");
-				currentCar.set("xyposition", {x : x + length/2, y : y + height/2});
-				roadObject = new SumOfUs.CarView({
-					model : currentCar,
-					paper : this.options.paper,
-					callback : this.options.callback,
-					angle : this.options.rotation,
-					carWidth : 3/4*length, 
-					carHeight : 3/5*height,
-				});
-				roadObject.element.click(this.isClicked);
 
-				roadSet.push(roadObject);
-			}
-
-			return roadSet;
+			return roadObject;
 		},
 
 		paper : function() {
@@ -473,20 +464,6 @@
 				this.element.attr("fill","white");
 			}
 
-			if(this.model.isOccupied()){
-				var length = this.options.measures.length;
-				var height = this.options.measures.height;
-				var x = this.options.beginPoint.x;
-				var y = this.options.beginPoint.y;
-
-				var currentCar = this.model.get("occupiedBy");
-				currentCar.set("xyposition", {
-					x : x + length/2, 
-					y : y + height/2
-				});
-
-			} 
- 
 			return this;
 		}
 

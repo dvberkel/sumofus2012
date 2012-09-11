@@ -200,6 +200,7 @@
 				position.x, position.y, speed
 			);
 			carSet.push(carObject);
+                        this.currentPosition = position;
 
 			return carSet;
 		},
@@ -215,8 +216,11 @@
 
 		render : function() {
 			var position = this.model.get("xyposition");
-			this.element.attr("cx", position.x);
-			this.element.attr("cy", position.y);
+                        this.element.translate(position.x-this.currentPosition.x,
+                                               position.y-this.currentPosition.y);
+
+                        this.currentPosition = position;
+                        return this;
 		},
 	});
 

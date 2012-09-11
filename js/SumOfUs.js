@@ -75,6 +75,14 @@
 		demoGame.assignLocationToPlayerCar(1,0,nodes[0][2],"one->two");
 		demoGame.assignLocationToPlayerCar(1,1,nodes[0][3],"one->two");
 
+                var cars = demoGame.get("playerCars");
+                demoGame.giveSpeedUpgradeTo(0,0);
+                demoGame.giveSpeedUpgradeTo(1,0);
+                demoGame.giveAccelerationUpgradeTo(1,0);
+                demoGame.giveAccelerationUpgradeTo(0,1);
+
+                cars[0][0].set("xyposition",{x:100,y:100});
+
 		new SumOfUs.CrossingView({
 			model : crossings[0],
 			callback : demoGame.playerClickedOnNode.bind(demoGame),
@@ -170,6 +178,13 @@
 				color : "lightgreen",
 				ratio : 30,
 			});
+                var carView = new SumOfUs.CarView({ model: cars[0][0],
+                                                    paper : paper,
+                                                    carWidth : 40,
+                                                    carHeight : 30,
+                                                    angle : 0});
+                window.car = cars[0][0];                                     
+                window.view = carView;
 
 		demoGame.start();
 
