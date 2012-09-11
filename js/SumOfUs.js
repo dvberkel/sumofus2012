@@ -142,6 +142,34 @@
 			endPoint : {x : 15 + 4*45, y : 440 - 4*60},
 		});
 
+		var randomPositions = [
+			{x : 250 + parseInt(Math.random() * 25), 
+			 y : 250 + parseInt(Math.random() * 25)},
+			{x : 375 + parseInt(Math.random() * 25), 
+			 y : 250 + parseInt(Math.random() * 25)},
+			{x : 250 + parseInt(Math.random() * 25), 
+			 y : 375 + parseInt(Math.random() * 25)},
+			{x : 375 + parseInt(Math.random() * 25), 
+			 y : 375 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 100 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 25), 
+			 y : 200 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 300 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 400 + parseInt(Math.random() * 25)},
+			{x : 700 + parseInt(Math.random() * 55), 
+			 y : 500 + parseInt(Math.random() * 25)},
+		];
+
+		for (var i = 0; i < randomPositions.length; i++)
+			new SumOfUs.TreeView({
+				paper : paper,
+				position : randomPositions[i],
+				color : "lightgreen",
+				ratio : 30,
+			});
 
 		demoGame.start();
 
