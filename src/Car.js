@@ -106,7 +106,7 @@
 		},
 
 		Car : function() {
-			var position = this.model.get("xyposition");
+			var position = this.model.get("position").get("views")[0].getCenter();
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
@@ -215,7 +215,7 @@
 		},
 
 		render : function() {
-			var position = this.model.get("xyposition");
+			var position = this.model.get("position").get("views")[0].getCenter();
                         this.element.translate(position.x-this.currentPosition.x,
                                                position.y-this.currentPosition.y);
 
