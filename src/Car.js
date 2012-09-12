@@ -126,6 +126,8 @@
 			);
 			carObject.attr("fill", carColor);
 			carObject.attr("stroke", "black");
+			this.carFoundation = carObject;			
+
 			carSet.push(carObject);
 
 			if (this.model.hasUpgradedAcceleration()) {
@@ -233,15 +235,11 @@
 				position.x, position.y, speed
 			);
 
-
-			if(this.model.get("highlighted")) {
-				/* Glow car */
-				//this.glowElement = this.element.glow(1);
-			} else if (this.glowElement != undefined) {
-				/* Unglow car */
-				//this.glowElement.glow(-1);
-			}
-
+			if (this.carGlow != undefined)
+				this.carGlow.remove();
+			if (this.model.get("highlighted"))
+				this.carGlow = this.carFoundation.glow({width : 10, color : "red"});
+			
 			var carAngle = this.model.get("position").get("views")[0].getAngle();
 			/* Do something with the angle etc... */
 

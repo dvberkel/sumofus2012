@@ -457,12 +457,12 @@
 		},
 
 		render : function() {
-			if(this.model.get("highlighted")){
-				this.element.attr("fill","green");
-			} else {
-				this.element.attr("fill","white");
-			}
-
+			if (this.trackGlow != undefined)
+				this.trackGlow.remove();
+			if (this.model.get("highlighted")) {
+				this.trackGlow = this.element.glow({width : 10, color : "black"})
+				//this.element.attr("fill", "gray");
+			} 
 			return this;
 		},
 
