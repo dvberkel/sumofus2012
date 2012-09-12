@@ -471,7 +471,25 @@
                                 y : this.options.beginPoint.y + this.options.measures.height/2 };
                 },
                 
-		getAngle : function(direction) {
+		getAngle : function(oldX, oldY) {
+			var newX = this.options.beginPoint.x;
+			var newY = this.options.beginPoint.y;
+
+			if (this.options.direction == "crossing") {
+				if ( Math.abs(newX - oldX) > Math.abs(newY - oldY) ) {
+					if (newX > oldX)
+						return 0;
+					else
+						return 180;
+				} else {
+					if (newY > oldY)
+						return 270;
+					else
+						return 90;
+				}
+			}
+
+			return 0;
 			/* give back angle with given direction, left/right/up/down etc... */
 		}
 
@@ -531,6 +549,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -610,6 +629,7 @@
 						model : this.model.get("nodes")[i][width-j-1],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -689,6 +709,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -768,6 +789,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -875,6 +897,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : "crossing",
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,

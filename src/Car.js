@@ -221,11 +221,45 @@
 
 		render : function() {
 			var position = this.model.get("position").get("views")[0].getCenter();
-                        this.element.translate(position.x-this.currentPosition.x,
+
+			this.element.translate(position.x-this.currentPosition.x,
                                                position.y-this.currentPosition.y);
+			
+			this.currentPosition = position;
+			
+			var t1 = position.x - this.currentPosition.x;
+			var t2 = position.y - this.currentPosition.y;
+			//this.element.transform("T" + t1.toString() + "," + t2.toString());
+			
+			var angle = this.options.angle;
+                        var newx = position.x;
+			var newy = position.y;
+			var oldx = this.currentPosition.x;
+			var oldy = this.currentPosition.y;
 
-                        this.currentPosition = position;
+			if (oldx != newx || oldy != newy) {
+				var newAngle;
+				if ( Math.abs(oldx - newx) > Math.abs(oldy - newy) )
+					if (oldx > newx)
+						newAngle = 180;
+					else
+						newAngle = 0;
 
+				else
+					if (oldy > newy)
+						newAngle = 270;
+					else
+						newAngle = 90;
+				//this.element.rotate(newAngle-angle, oldx, oldy);
+				//this.element.translate(newx-oldx, newy-oldy);
+			} else {
+				newAngle = angle;
+			}
+
+			this.options.angle = newAngle;
+			this.currentPosition = position;
+			
+	
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
@@ -240,8 +274,6 @@
 			if (this.model.get("highlighted"))
 				this.carGlow = this.carFoundation.glow({width : 10, color : "red"});
 			
-			var carAngle = this.model.get("position").get("views")[0].getAngle();
-			/* Do something with the angle etc... */
 
                         return this;
 		},
