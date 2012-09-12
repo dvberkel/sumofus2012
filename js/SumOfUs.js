@@ -29,29 +29,31 @@
 		}	
 
 		demoTrack.connectSegments(
-			roads[0].get("endPoints").one, crossings[0].get("endPoints").north
+			roads[0].get("endPoints").one, crossings[0].get("endPoints").east
 		);
 		demoTrack.connectSegments(
-			roads[0].get("endPoints").two, crossings[1].get("endPoints").south
+			roads[0].get("endPoints").two, crossings[1].get("endPoints").west
 		);
 		demoTrack.connectSegments(
-			roads[1].get("endPoints").one, crossings[1].get("endPoints").east
+			roads[1].get("endPoints").one, crossings[1].get("endPoints").south
 		);
 		demoTrack.connectSegments(
-			roads[1].get("endPoints").two, crossings[2].get("endPoints").west
+			roads[1].get("endPoints").two, crossings[2].get("endPoints").north
 		);
 		demoTrack.connectSegments(
-			roads[2].get("endPoints").one, crossings[2].get("endPoints").south
+			roads[2].get("endPoints").one, crossings[2].get("endPoints").west
 		);
 		demoTrack.connectSegments(
-			roads[2].get("endPoints").two, crossings[3].get("endPoints").north
+			roads[2].get("endPoints").two, crossings[3].get("endPoints").east
 		);
 		demoTrack.connectSegments(
-			roads[3].get("endPoints").one, crossings[3].get("endPoints").west
+			roads[3].get("endPoints").one, crossings[3].get("endPoints").north
 		);
 		demoTrack.connectSegments(
-			roads[3].get("endPoints").two, crossings[0].get("endPoints").east
+			roads[3].get("endPoints").two, crossings[0].get("endPoints").south
 		);
+		window.roads = roads;
+		window.crossings = crossings;
 
 		var demoGame = new SumOfUs.Game({
 			track : demoTrack, 
@@ -181,8 +183,8 @@
 		cars[0][0].set("xyposition",{x:230,y:37.5});
                 var carView = new SumOfUs.CarView({ model: cars[0][0],
                                                     paper : paper,
-                                                    carWidth : 40,
-                                                    carHeight : 25,
+                                                    carWidth : 20,
+                                                    carHeight : 12,
                                                     angle : 0});
                 window.car = cars[0][0];                                     
                 window.view = carView;
@@ -190,27 +192,21 @@
 		cars[0][1].set("xyposition",{x:230,y:37.5 + 45});
                 var carView = new SumOfUs.CarView({ model: cars[0][1],
                                                     paper : paper,
-                                                    carWidth : 40,
-                                                    carHeight : 25,
+                                                    carWidth : 20,
+                                                    carHeight : 12,
                                                     angle : 0});
-                window.car = cars[0][0];                                     
-                window.view = carView;
 		cars[1][0].set("xyposition",{x:230,y:37.5 + 90});
                 var carView = new SumOfUs.CarView({ model: cars[1][0],
                                                     paper : paper,
-                                                    carWidth : 40,
-                                                    carHeight : 25,
+                                                    carWidth : 20,
+                                                    carHeight : 12,
                                                     angle : 0});
-                window.car = cars[0][0];                                     
-                window.view = carView;
 		cars[1][1].set("xyposition",{x:230,y:37.5 + 135});
                 var carView = new SumOfUs.CarView({ model: cars[1][1],
                                                     paper : paper,
-                                                    carWidth : 40,
-                                                    carHeight : 25,
+                                                    carWidth : 20,
+                                                    carHeight : 12,
                                                     angle : 0});
-                window.car = cars[0][0];                                     
-                window.view = carView;
 		
 		demoGame.start();
 

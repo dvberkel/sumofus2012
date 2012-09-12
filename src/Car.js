@@ -197,7 +197,7 @@
 			);
 			carSet.push(carObject);
 
-			carSet.rotate(angle, position.x, position.y);
+			carSet.transform("...R"+angle+","+position.x+","+position.y);
 
 			carObject = this.paper().text(
 				position.x, position.y, speed
@@ -206,6 +206,7 @@
 			this.carSpeedNumber = carObject;
 
                         this.currentPosition = position;
+			this.currentAngle = angle;
 
 			return carSet;
 		},
@@ -221,43 +222,18 @@
 
 		render : function() {
 			var position = this.model.get("position").get("views")[0].getCenter();
-
-			this.element.translate(position.x-this.currentPosition.x,
-                                               position.y-this.currentPosition.y);
-			
+			var tx = position.x - this.currentPosition.x;
+			var ty = position.y - this.currentPosition.y;
+			this.element.transform("...T"+tx+","+ty);
 			this.currentPosition = position;
 			
-			var t1 = position.x - this.currentPosition.x;
-			var t2 = position.y - this.currentPosition.y;
-			//this.element.transform("T" + t1.toString() + "," + t2.toString());
-			
-			var angle = this.options.angle;
-                        var newx = position.x;
-			var newy = position.y;
-			var oldx = this.currentPosition.x;
-			var oldy = this.currentPosition.y;
+			var direction = this.model.get("direction");
+			var newAngle = this.model.get("position").get("views")[0].getAngle(direction);
+			this.element.transform("...R"+(newAngle-this.currentAngle) 
+			                         +","+position.x
+						 +","+position.y);
 
-			if (oldx != newx || oldy != newy) {
-				var newAngle;
-				if ( Math.abs(oldx - newx) > Math.abs(oldy - newy) )
-					if (oldx > newx)
-						newAngle = 180;
-					else
-						newAngle = 0;
-
-				else
-					if (oldy > newy)
-						newAngle = 270;
-					else
-						newAngle = 90;
-				//this.element.rotate(newAngle-angle, oldx, oldy);
-				//this.element.translate(newx-oldx, newy-oldy);
-			} else {
-				newAngle = angle;
-			}
-
-			this.options.angle = newAngle;
-			this.currentPosition = position;
+			this.currentAngle = newAngle;
 			
 	
 			if (this.model.get("speed") != undefined)

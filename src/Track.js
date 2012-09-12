@@ -471,26 +471,30 @@
                                 y : this.options.beginPoint.y + this.options.measures.height/2 };
                 },
                 
-		getAngle : function(oldX, oldY) {
-			var newX = this.options.beginPoint.x;
-			var newY = this.options.beginPoint.y;
-
+		getAngle : function(direction) {
 			if (this.options.direction == "crossing") {
-				if ( Math.abs(newX - oldX) > Math.abs(newY - oldY) ) {
-					if (newX > oldX)
-						return 0;
-					else
-						return 180;
-				} else {
-					if (newY > oldY)
-						return 270;
-					else
-						return 90;
-				}
+			    return (direction == "east") ? 0 :
+			           (direction == "south") ? 90 :
+				   (direction == "west") ? 180 :
+				   (direction == "north") ? 270 : 0;
+				   
 			}
-
-			return 0;
-			/* give back angle with given direction, left/right/up/down etc... */
+			if(this.options.direction == "right"){
+			    return (direction == "one->two") ? 0 :
+			           (direction == "two->one") ? 180 : 0;
+			}
+			if(this.options.direction == "left"){
+			    return (direction == "one->two") ? 180 :
+			           (direction == "two->one") ? 0 : 0;
+			}
+			if(this.options.direction == "up"){
+			    return (direction == "one->two") ? 270 :
+			           (direction == "two->one") ? 90 : 0;
+			}
+			if(this.options.direction == "down"){
+			    return (direction == "one->two") ? 90 :
+			           (direction == "two->one") ? 270 : 0;
+			}
 		}
 
 	});
@@ -894,7 +898,7 @@
 					};
 					
 					crossingObject = new SumOfUs.TrackNodeView({
-						model : this.model.get("nodes")[i][j],
+						model : this.model.get("nodes")[height-1-j][i],
 						callback : this.options.callback,
 						paper : this.options.paper,
 						direction : "crossing",
