@@ -111,7 +111,8 @@
 				var speed = this.model.get("speed");
 			else
 				var speed = '+';
-			var angle = this.options.angle;
+			var direction = this.model.get("direction");
+			var angle = this.model.get("position").get("views")[0].getAngle(direction);
 			var carColor = this.model.get("color");
 
 			var carWidth = this.options.carWidth;

@@ -90,7 +90,20 @@
             var views = this.get("views");
             views.push(view);
             this.set("views",views);
-        }
+        },
+
+	registerNPCDirection : function(dir){
+	    this.set("npcDirEquivalent",dir);
+	},
+
+	getNPCDirectionEquivalent : function(){
+	    var dir = this.get("npcDirEquivalent");
+	    if(dir ==  undefined){
+	        return this.get("directions")[0];
+	    } else{
+	        return dir;
+	    }
+	}
     });
 
     var TrackSegment = Backbone.Model.extend({
@@ -163,16 +176,23 @@
 	    }
 
 	    if(args.npcTraffic == "oneway"){//creates npc routes in one -> two direction
-	        for(var i = 0; i < length-1; i++){ 
+	        for(var i = 0; i < length; i++){ 
 		    for(var j = 0; j < width; j++){
-		        nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+		        if(i < length-1){
+                             nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("one->two");
 		    }
 		}
 	    } else if(args.npcTraffic == "twoway"){
-	        for(var i = 0; i < length-1; i++){
+	        for(var i = 0; i < length; i++){
 		    for(var j=0; j < width/2; j++){
-		        nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
-		        nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
+		        if(i < length-1){
+			    nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
+			    nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("two->one");
+			nodes[i][width-1-j].registerNPCDirection("one->two");
 		    }
 		}
 	    }
@@ -240,15 +260,22 @@
 
 	    if(args.npcTraffic == "oneway"){//creates west to east npc traffic routes
 	        for(var i = 0; i < height; i++){
-		    for(var j = 0; j < width - 1; j++){
-		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+		    for(var j = 0; j < width; j++){
+		        if(j < width-1){
+		            nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("east");
 		    }
 		}
 	    } else if(args.npcTraffic == "twoway"){
 	        for(var i = 0; i < height / 2; i++){
-		    for(var j = 0; j < width - 1; j++){
-		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
-			nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+		    for(var j = 0; j < width; j++){
+		        if(j < width-1){
+			    nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			    nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("east");
+			nodes[height-1-i][j].registerNPCDirection("west");
 		    }
 		}
 	    }
@@ -393,7 +420,8 @@
 
 	    var car = new SumOfUs.Car({npc : true, 
 	                               maxSpeed : this.get("npcMaxSpeed"),
-				       delayChance : this.get("npcDelayChance")});
+				       delayChance : this.get("npcDelayChance"),
+				       color : "lightgrey"});
 	    if(node.get("directions").indexOf(NPC_DIRECTION) == -1){
 	        throw "Can't add npc car on node without npc direction";
 	    }
@@ -472,7 +500,10 @@
                 },
                 
 		getAngle : function(direction) {
-			if (this.options.direction == "crossing") {
+			if(direction == SumOfUs.NPC_DIRECTION){
+				direction = this.model.getNPCDirectionEquivalent();
+			}
+			if(this.options.direction == "crossing") {
 			    return (direction == "east") ? 0 :
 			           (direction == "south") ? 90 :
 				   (direction == "west") ? 180 :
@@ -886,8 +917,8 @@
 
 			crossingSet.push(crossingObject);
 
-			var spaceWidth  = (ex - bx) / height;
-			var spaceHeight = (ey - by) / width;
+			var spaceWidth  = (ex - bx) / width;
+			var spaceHeight = (ey - by) / height;
 		
 			/* Seats in the crossing */
 			for (var i = 0; i < width; i++) {
@@ -920,8 +951,8 @@
 			}
 
 			/* Marks */
-			for (var i = 1; i < width; i++) {
-				for (var j = 0; j < 2*height; j++) {
+			for (var i = 1; i < height; i++) {
+				for (var j = 0; j < 2*width; j++) {
 					var x = bx + (j + 1/2)/2 * spaceWidth;
 					var y = by + i * spaceHeight;
 
@@ -934,8 +965,8 @@
 				}
 			}
 
-			for (var i = 1; i < height; i++) {
-				for (var j = 0; j < 2*width; j++) {
+			for (var i = 1; i < width; i++) {
+				for (var j = 0; j < 2*height; j++) {
 					var x = bx + i * spaceHeight;
 					var y = by + (j + 1/2)/2 * spaceWidth;
 
