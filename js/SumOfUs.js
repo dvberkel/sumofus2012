@@ -14,7 +14,7 @@
         var paper = Raphael("viewport", 1300, 830);
         paper.rect(0, 0, 1300, 830).attr({ fill : "#ffffff" });
 
-	var demoTrack = new SumOfUs.Track({npcMaxSpeed : 4});
+	var demoTrack = new SumOfUs.Track({npcMaxSpeed : 4,npcDelayChance: 0.08});
 
 	var roads = [];
 	var crossings = [];
@@ -153,7 +153,7 @@
 		track : demoTrack, 
 		numberOfTeams : 4, 
 		carsPerTeam : 2,
-		secondsPerMove : 1
+		secondsPerMove : 30
 	});
 
 
