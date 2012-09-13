@@ -222,14 +222,8 @@
 		render : function() {
 			var position = this.model.get("position").get("views")[0].getCenter();
 
-			this.element.translate(position.x-this.currentPosition.x,
-                                               position.y-this.currentPosition.y);
-			
-			this.currentPosition = position;
-			
 			var t1 = position.x - this.currentPosition.x;
 			var t2 = position.y - this.currentPosition.y;
-			//this.element.transform("T" + t1.toString() + "," + t2.toString());
 			
 			var angle = this.options.angle;
                         var newx = position.x;
@@ -250,11 +244,15 @@
 						newAngle = 270;
 					else
 						newAngle = 90;
-				//this.element.rotate(newAngle-angle, oldx, oldy);
-				//this.element.translate(newx-oldx, newy-oldy);
+				
+				/* Rotate to direction 0, translate and then rotate to new direction */
+				//this.element.rotate(-angle, oldx, oldy);
+				this.element.translate(t1, t2);
+				//this.element.rotate(newAngle, newx, newy);
 			} else {
 				newAngle = angle;
 			}
+
 
 			this.options.angle = newAngle;
 			this.currentPosition = position;
