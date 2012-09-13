@@ -106,7 +106,7 @@
 		},
 
 		Car : function() {
-			var position = this.model.get("xyposition");
+			var position = this.model.get("position").get("views")[0].getCenter();
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
@@ -126,11 +126,13 @@
 			);
 			carObject.attr("fill", carColor);
 			carObject.attr("stroke", "black");
+			this.carFoundation = carObject;			
+
 			carSet.push(carObject);
 
-			if (this.model.hasUpgradedSpeed()) {
+			if (this.model.hasUpgradedAcceleration()) {
 				carObject = this.paper().rect(
-					bx+1, by + carHeight/4, carWidth, carHeight/2
+					bx+1, by + 2/5*carHeight, carWidth, carHeight/5
 				);
 				carObject.attr("stroke", "black");
 				carObject.attr("fill", "black");
@@ -174,19 +176,20 @@
 			/* Uitlaat */
 			if (this.model.hasUpgradedSpeed()) {
 				carObject = this.paper().rect(
-					bx, by + 1/6*carHeight, 1, 1/6*carHeight
+					bx-1, by + 1/6*carHeight, 2, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 
 				carObject = this.paper().rect(
-					bx, by + 4/5*carHeight, 1, 1/6*carHeight
+					bx-1, by + 4/6*carHeight, 2, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 			}
+
 
 			/* Direction */
 			carObject = this.paper().text(
@@ -200,6 +203,9 @@
 				position.x, position.y, speed
 			);
 			carSet.push(carObject);
+			this.carSpeedNumber = carObject;
+
+                        this.currentPosition = position;
 
 			return carSet;
 		},
@@ -214,9 +220,60 @@
 		},
 
 		render : function() {
-			var position = this.model.get("xyposition");
-			this.element.attr("cx", position.x);
-			this.element.attr("cy", position.y);
+			var position = this.model.get("position").get("views")[0].getCenter();
+
+			var t1 = position.x - this.currentPosition.x;
+			var t2 = position.y - this.currentPosition.y;
+			
+			var angle = this.options.angle;
+                        var newx = position.x;
+			var newy = position.y;
+			var oldx = this.currentPosition.x;
+			var oldy = this.currentPosition.y;
+
+			if (oldx != newx || oldy != newy) {
+				var newAngle;
+				if ( Math.abs(oldx - newx) > Math.abs(oldy - newy) )
+					if (oldx > newx)
+						newAngle = 180;
+					else
+						newAngle = 0;
+
+				else
+					if (oldy > newy)
+						newAngle = 270;
+					else
+						newAngle = 90;
+				
+				/* Rotate to direction 0, translate and then rotate to new direction */
+				//this.element.rotate(-angle, oldx, oldy);
+				this.element.translate(t1, t2);
+				//this.element.rotate(newAngle, newx, newy);
+			} else {
+				newAngle = angle;
+			}
+
+
+			this.options.angle = newAngle;
+			this.currentPosition = position;
+			
+	
+			if (this.model.get("speed") != undefined)
+				var speed = this.model.get("speed");
+			else
+				var speed = '+';
+			this.carSpeedNumber.remove();
+			this.carSpeedNumber = this.paper().text(
+				position.x, position.y, speed
+			);
+
+			if (this.carGlow != undefined)
+				this.carGlow.remove();
+			if (this.model.get("highlighted"))
+				this.carGlow = this.carFoundation.glow({width : 10, color : "red"});
+			
+
+                        return this;
 		},
 	});
 

@@ -57,6 +57,7 @@
 			track : demoTrack, 
 			numberOfTeams : 2, 
 			carsPerTeam : 2,
+			secondsPerMove : 10
 		});
 
 
@@ -73,6 +74,13 @@
 		demoGame.assignLocationToPlayerCar(0,1,nodes[0][1],"one->two");
 		demoGame.assignLocationToPlayerCar(1,0,nodes[0][2],"one->two");
 		demoGame.assignLocationToPlayerCar(1,1,nodes[0][3],"one->two");
+
+                var cars = demoGame.get("playerCars");
+                demoGame.giveSpeedUpgradeTo(0,0);
+                demoGame.giveSpeedUpgradeTo(1,0);
+                demoGame.giveAccelerationUpgradeTo(1,0);
+                demoGame.giveAccelerationUpgradeTo(0,1);
+
 
 		new SumOfUs.CrossingView({
 			model : crossings[0],
@@ -169,8 +177,51 @@
 				color : "lightgreen",
 				ratio : 30,
 			});
+                
+		cars[0][0].set("xyposition",{x:230,y:37.5});
+                var carView = new SumOfUs.CarView({ model: cars[0][0],
+                                                    paper : paper,
+                                                    carWidth : 40,
+                                                    carHeight : 25,
+                                                    angle : 0});
+                window.car = cars[0][0];                                     
+                window.view = carView;
 
+		cars[0][1].set("xyposition",{x:230,y:37.5 + 45});
+                var carView = new SumOfUs.CarView({ model: cars[0][1],
+                                                    paper : paper,
+                                                    carWidth : 40,
+                                                    carHeight : 25,
+                                                    angle : 0});
+                window.car = cars[0][0];                                     
+                window.view = carView;
+		cars[1][0].set("xyposition",{x:230,y:37.5 + 90});
+                var carView = new SumOfUs.CarView({ model: cars[1][0],
+                                                    paper : paper,
+                                                    carWidth : 40,
+                                                    carHeight : 25,
+                                                    angle : 0});
+                window.car = cars[0][0];                                     
+                window.view = carView;
+		cars[1][1].set("xyposition",{x:230,y:37.5 + 135});
+                var carView = new SumOfUs.CarView({ model: cars[1][1],
+                                                    paper : paper,
+                                                    carWidth : 40,
+                                                    carHeight : 25,
+                                                    angle : 0});
+                window.car = cars[0][0];                                     
+                window.view = carView;
+		
 		demoGame.start();
+
+		var timerView = new SumOfUs.TimerView({
+		                     model: demoGame.get("timer"),
+				     paper : paper, 
+				     x : 840, 
+				     y : 50,
+				     height : 15,
+				     width : 100 });
+
 
 
 		(function loop(){
