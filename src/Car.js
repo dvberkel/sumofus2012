@@ -106,12 +106,13 @@
 		},
 
 		Car : function() {
-			var position = this.model.get("xyposition");
+			var position = this.model.get("position").get("views")[0].getCenter();
 			if (this.model.get("speed") != undefined)
 				var speed = this.model.get("speed");
 			else
 				var speed = '+';
-			var angle = this.options.angle;
+			var direction = this.model.get("direction");
+			var angle = this.model.get("position").get("views")[0].getAngle(direction);
 			var carColor = this.model.get("color");
 
 			var carWidth = this.options.carWidth;
@@ -126,11 +127,13 @@
 			);
 			carObject.attr("fill", carColor);
 			carObject.attr("stroke", "black");
+			this.carFoundation = carObject;			
+
 			carSet.push(carObject);
 
-			if (this.model.hasUpgradedSpeed()) {
+			if (this.model.hasUpgradedAcceleration()) {
 				carObject = this.paper().rect(
-					bx+1, by + carHeight/4, carWidth, carHeight/2
+					bx+1, by + 2/5*carHeight, carWidth, carHeight/5
 				);
 				carObject.attr("stroke", "black");
 				carObject.attr("fill", "black");
@@ -174,19 +177,20 @@
 			/* Uitlaat */
 			if (this.model.hasUpgradedSpeed()) {
 				carObject = this.paper().rect(
-					bx, by + 1/6*carHeight, 1, 1/6*carHeight
+					bx-1, by + 1/6*carHeight, 2, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 
 				carObject = this.paper().rect(
-					bx, by + 4/5*carHeight, 1, 1/6*carHeight
+					bx-1, by + 4/6*carHeight, 2, 1/6*carHeight
 				);
 				carObject.attr("fill", "black");
 				carObject.attr("stroke", "black");
 				carSet.push(carObject);
 			}
+
 
 			/* Direction */
 			carObject = this.paper().text(
@@ -194,12 +198,16 @@
 			);
 			carSet.push(carObject);
 
-			carSet.rotate(angle, position.x, position.y);
+			carSet.transform("...R"+angle+","+position.x+","+position.y);
 
 			carObject = this.paper().text(
 				position.x, position.y, speed
 			);
 			carSet.push(carObject);
+			this.carSpeedNumber = carObject;
+
+                        this.currentPosition = position;
+			this.currentAngle = angle;
 
 			return carSet;
 		},
@@ -214,9 +222,37 @@
 		},
 
 		render : function() {
-			var position = this.model.get("xyposition");
-			this.element.attr("cx", position.x);
-			this.element.attr("cy", position.y);
+			var position = this.model.get("position").get("views")[0].getCenter();
+			var tx = position.x - this.currentPosition.x;
+			var ty = position.y - this.currentPosition.y;
+			this.element.transform("...T"+tx+","+ty);
+			this.currentPosition = position;
+			
+			var direction = this.model.get("direction");
+			var newAngle = this.model.get("position").get("views")[0].getAngle(direction);
+			this.element.transform("...R"+(newAngle-this.currentAngle) 
+			                         +","+position.x
+						 +","+position.y);
+
+			this.currentAngle = newAngle;
+			
+	
+			if (this.model.get("speed") != undefined)
+				var speed = this.model.get("speed");
+			else
+				var speed = '+';
+			this.carSpeedNumber.remove();
+			this.carSpeedNumber = this.paper().text(
+				position.x, position.y, speed
+			);
+
+			if (this.carGlow != undefined)
+				this.carGlow.remove();
+			if (this.model.get("highlighted"))
+				this.carGlow = this.carFoundation.glow({width : 10, color : "red"});
+			
+
+                        return this;
 		},
 	});
 

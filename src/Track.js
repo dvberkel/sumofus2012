@@ -16,6 +16,7 @@
                 this.set("directions",[]);
 	    };
 	    this.set("connections",[]);
+            this.set("views",[]);
 	},
         
         changeHighlight : function(setting){
@@ -84,6 +85,25 @@
 	    }
 	    return res;
 	},
+
+        addView : function(view){
+            var views = this.get("views");
+            views.push(view);
+            this.set("views",views);
+        },
+
+	registerNPCDirection : function(dir){
+	    this.set("npcDirEquivalent",dir);
+	},
+
+	getNPCDirectionEquivalent : function(){
+	    var dir = this.get("npcDirEquivalent");
+	    if(dir ==  undefined){
+	        return this.get("directions")[0];
+	    } else{
+	        return dir;
+	    }
+	}
     });
 
     var TrackSegment = Backbone.Model.extend({
@@ -156,16 +176,23 @@
 	    }
 
 	    if(args.npcTraffic == "oneway"){//creates npc routes in one -> two direction
-	        for(var i = 0; i < length-1; i++){ 
+	        for(var i = 0; i < length; i++){ 
 		    for(var j = 0; j < width; j++){
-		        nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+		        if(i < length-1){
+                             nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("one->two");
 		    }
 		}
 	    } else if(args.npcTraffic == "twoway"){
-	        for(var i = 0; i < length-1; i++){
+	        for(var i = 0; i < length; i++){
 		    for(var j=0; j < width/2; j++){
-		        nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
-		        nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
+		        if(i < length-1){
+			    nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
+			    nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("two->one");
+			nodes[i][width-1-j].registerNPCDirection("one->two");
 		    }
 		}
 	    }
@@ -233,15 +260,22 @@
 
 	    if(args.npcTraffic == "oneway"){//creates west to east npc traffic routes
 	        for(var i = 0; i < height; i++){
-		    for(var j = 0; j < width - 1; j++){
-		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+		    for(var j = 0; j < width; j++){
+		        if(j < width-1){
+		            nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("east");
 		    }
 		}
 	    } else if(args.npcTraffic == "twoway"){
 	        for(var i = 0; i < height / 2; i++){
-		    for(var j = 0; j < width - 1; j++){
-		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
-			nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+		    for(var j = 0; j < width; j++){
+		        if(j < width-1){
+			    nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			    nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("east");
+			nodes[height-1-i][j].registerNPCDirection("west");
 		    }
 		}
 	    }
@@ -386,7 +420,8 @@
 
 	    var car = new SumOfUs.Car({npc : true, 
 	                               maxSpeed : this.get("npcMaxSpeed"),
-				       delayChance : this.get("npcDelayChance")});
+				       delayChance : this.get("npcDelayChance"),
+				       color : "lightgrey"});
 	    if(node.get("directions").indexOf(NPC_DIRECTION) == -1){
 	        throw "Can't add npc car on node without npc direction";
 	    }
@@ -428,11 +463,11 @@
 		TrackNode : function() {
 			var x = this.options.beginPoint.x;
 			var y = this.options.beginPoint.y;
+                        this.model.addView(this);
 			var length = this.options.measures.length;
 			var height = this.options.measures.height;
 			var edge = this.options.measures.edge;
 
-			var roadSet = this.paper().set();
 			var roadObject = this.paper().rect(x, y, length, height, edge);
 			roadObject.attr("stroke", "gray");
 			roadObject.attr("fill", "white");
@@ -441,25 +476,8 @@
 			var node = this.model;
 			roadObject.click(function(){callback(node);});
 
-			roadSet.push(roadObject);
 
-			if (this.model.isOccupied()) {
-				var currentCar = this.model.get("occupiedBy");
-				currentCar.set("xyposition", {x : x + length/2, y : y + height/2});
-				roadObject = new SumOfUs.CarView({
-					model : currentCar,
-					paper : this.options.paper,
-					callback : this.options.callback,
-					angle : this.options.rotation,
-					carWidth : 3/4*length, 
-					carHeight : 3/5*height,
-				});
-				roadObject.element.click(this.isClicked);
-
-				roadSet.push(roadObject);
-			}
-
-			return roadSet;
+			return roadObject;
 		},
 
 		paper : function() {
@@ -467,27 +485,47 @@
 		},
 
 		render : function() {
-			if(this.model.get("highlighted")){
-				this.element.attr("fill","green");
-			} else {
-				this.element.attr("fill","white");
-			}
-
-			if(this.model.isOccupied()){
-				var length = this.options.measures.length;
-				var height = this.options.measures.height;
-				var x = this.options.beginPoint.x;
-				var y = this.options.beginPoint.y;
-
-				var currentCar = this.model.get("occupiedBy");
-				currentCar.set("xyposition", {
-					x : x + length/2, 
-					y : y + height/2
-				});
-
+			if (this.trackGlow != undefined)
+				this.trackGlow.remove();
+			if (this.model.get("highlighted")) {
+				this.trackGlow = this.element.glow({width : 10, color : "black"})
+				//this.element.attr("fill", "gray");
 			} 
- 
 			return this;
+		},
+
+                getCenter : function() {
+                       return { x : this.options.beginPoint.x + this.options.measures.length/2,
+                                y : this.options.beginPoint.y + this.options.measures.height/2 };
+                },
+                
+		getAngle : function(direction) {
+			if(direction == SumOfUs.NPC_DIRECTION){
+				direction = this.model.getNPCDirectionEquivalent();
+			}
+			if(this.options.direction == "crossing") {
+			    return (direction == "east") ? 0 :
+			           (direction == "south") ? 90 :
+				   (direction == "west") ? 180 :
+				   (direction == "north") ? 270 : 0;
+				   
+			}
+			if(this.options.direction == "right"){
+			    return (direction == "one->two") ? 0 :
+			           (direction == "two->one") ? 180 : 0;
+			}
+			if(this.options.direction == "left"){
+			    return (direction == "one->two") ? 180 :
+			           (direction == "two->one") ? 0 : 0;
+			}
+			if(this.options.direction == "up"){
+			    return (direction == "one->two") ? 270 :
+			           (direction == "two->one") ? 90 : 0;
+			}
+			if(this.options.direction == "down"){
+			    return (direction == "one->two") ? 90 :
+			           (direction == "two->one") ? 270 : 0;
+			}
 		}
 
 	});
@@ -546,6 +584,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -625,6 +664,7 @@
 						model : this.model.get("nodes")[i][width-j-1],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -704,6 +744,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -783,6 +824,7 @@
 						model : this.model.get("nodes")[i][j],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : this.options.direction,
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -875,8 +917,8 @@
 
 			crossingSet.push(crossingObject);
 
-			var spaceWidth  = (ex - bx) / height;
-			var spaceHeight = (ey - by) / width;
+			var spaceWidth  = (ex - bx) / width;
+			var spaceHeight = (ey - by) / height;
 		
 			/* Seats in the crossing */
 			for (var i = 0; i < width; i++) {
@@ -887,9 +929,10 @@
 					};
 					
 					crossingObject = new SumOfUs.TrackNodeView({
-						model : this.model.get("nodes")[i][j],
+						model : this.model.get("nodes")[height-1-j][i],
 						callback : this.options.callback,
 						paper : this.options.paper,
+						direction : "crossing",
 						place : { xi : i, xj : j },
 						beginPoint : { 
 							x : begin.x + 4,
@@ -908,8 +951,8 @@
 			}
 
 			/* Marks */
-			for (var i = 1; i < width; i++) {
-				for (var j = 0; j < 2*height; j++) {
+			for (var i = 1; i < height; i++) {
+				for (var j = 0; j < 2*width; j++) {
 					var x = bx + (j + 1/2)/2 * spaceWidth;
 					var y = by + i * spaceHeight;
 
@@ -922,8 +965,8 @@
 				}
 			}
 
-			for (var i = 1; i < height; i++) {
-				for (var j = 0; j < 2*width; j++) {
+			for (var i = 1; i < width; i++) {
+				for (var j = 0; j < 2*height; j++) {
 					var x = bx + i * spaceHeight;
 					var y = by + (j + 1/2)/2 * spaceWidth;
 
