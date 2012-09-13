@@ -90,7 +90,20 @@
             var views = this.get("views");
             views.push(view);
             this.set("views",views);
-        }
+        },
+
+	registerNPCDirection : function(dir){
+	    this.set("npcDirEquivalent",dir);
+	},
+
+	getNPCDirectionEquivalent : function(){
+	    var dir = this.get("npcDirEquivalent");
+	    if(dir ==  undefined){
+	        return this.get("directions")[0];
+	    } else{
+	        return dir;
+	    }
+	}
     });
 
     var TrackSegment = Backbone.Model.extend({
@@ -163,16 +176,23 @@
 	    }
 
 	    if(args.npcTraffic == "oneway"){//creates npc routes in one -> two direction
-	        for(var i = 0; i < length-1; i++){ 
+	        for(var i = 0; i < length; i++){ 
 		    for(var j = 0; j < width; j++){
-		        nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+		        if(i < length-1){
+                             nodes[i][j].connectTo(nodes[i+1][j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("one->two");
 		    }
 		}
 	    } else if(args.npcTraffic == "twoway"){
-	        for(var i = 0; i < length-1; i++){
+	        for(var i = 0; i < length; i++){
 		    for(var j=0; j < width/2; j++){
-		        nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
-		        nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
+		        if(i < length-1){
+			    nodes[i+1][j].connectTo(nodes[i][j]).along(NPC_DIRECTION);
+			    nodes[i][width-1-j].connectTo(nodes[i+1][width-1-j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("two->one");
+			nodes[i][width-1-j].registerNPCDirection("one->two");
 		    }
 		}
 	    }
@@ -240,15 +260,22 @@
 
 	    if(args.npcTraffic == "oneway"){//creates west to east npc traffic routes
 	        for(var i = 0; i < height; i++){
-		    for(var j = 0; j < width - 1; j++){
-		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+		    for(var j = 0; j < width; j++){
+		        if(j < width-1){
+		            nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("east");
 		    }
 		}
 	    } else if(args.npcTraffic == "twoway"){
 	        for(var i = 0; i < height / 2; i++){
-		    for(var j = 0; j < width - 1; j++){
-		        nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
-			nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+		    for(var j = 0; j < width; j++){
+		        if(j < width-1){
+			    nodes[i][j].connectTo(nodes[i][j+1]).along(NPC_DIRECTION);
+			    nodes[height-1-i][j+1].connectTo(nodes[height-1-i][j]).along(NPC_DIRECTION);
+			}
+			nodes[i][j].registerNPCDirection("east");
+			nodes[height-1-i][j].registerNPCDirection("west");
 		    }
 		}
 	    }
@@ -393,7 +420,8 @@
 
 	    var car = new SumOfUs.Car({npc : true, 
 	                               maxSpeed : this.get("npcMaxSpeed"),
-				       delayChance : this.get("npcDelayChance")});
+				       delayChance : this.get("npcDelayChance"),
+				       color : "lightgrey"});
 	    if(node.get("directions").indexOf(NPC_DIRECTION) == -1){
 	        throw "Can't add npc car on node without npc direction";
 	    }
@@ -471,26 +499,33 @@
                                 y : this.options.beginPoint.y + this.options.measures.height/2 };
                 },
                 
-		getAngle : function(oldX, oldY) {
-			var newX = this.options.beginPoint.x;
-			var newY = this.options.beginPoint.y;
-
-			if (this.options.direction == "crossing") {
-				if ( Math.abs(newX - oldX) > Math.abs(newY - oldY) ) {
-					if (newX > oldX)
-						return 0;
-					else
-						return 180;
-				} else {
-					if (newY > oldY)
-						return 270;
-					else
-						return 90;
-				}
+		getAngle : function(direction) {
+			if(direction == SumOfUs.NPC_DIRECTION){
+				direction = this.model.getNPCDirectionEquivalent();
 			}
-
-			return 0;
-			/* give back angle with given direction, left/right/up/down etc... */
+			if(this.options.direction == "crossing") {
+			    return (direction == "east") ? 0 :
+			           (direction == "south") ? 90 :
+				   (direction == "west") ? 180 :
+				   (direction == "north") ? 270 : 0;
+				   
+			}
+			if(this.options.direction == "right"){
+			    return (direction == "one->two") ? 0 :
+			           (direction == "two->one") ? 180 : 0;
+			}
+			if(this.options.direction == "left"){
+			    return (direction == "one->two") ? 180 :
+			           (direction == "two->one") ? 0 : 0;
+			}
+			if(this.options.direction == "up"){
+			    return (direction == "one->two") ? 270 :
+			           (direction == "two->one") ? 90 : 0;
+			}
+			if(this.options.direction == "down"){
+			    return (direction == "one->two") ? 90 :
+			           (direction == "two->one") ? 270 : 0;
+			}
 		}
 
 	});
@@ -882,8 +917,8 @@
 
 			crossingSet.push(crossingObject);
 
-			var spaceWidth  = (ex - bx) / height;
-			var spaceHeight = (ey - by) / width;
+			var spaceWidth  = (ex - bx) / width;
+			var spaceHeight = (ey - by) / height;
 		
 			/* Seats in the crossing */
 			for (var i = 0; i < width; i++) {
@@ -894,7 +929,7 @@
 					};
 					
 					crossingObject = new SumOfUs.TrackNodeView({
-						model : this.model.get("nodes")[i][j],
+						model : this.model.get("nodes")[height-1-j][i],
 						callback : this.options.callback,
 						paper : this.options.paper,
 						direction : "crossing",
@@ -916,8 +951,8 @@
 			}
 
 			/* Marks */
-			for (var i = 1; i < width; i++) {
-				for (var j = 0; j < 2*height; j++) {
+			for (var i = 1; i < height; i++) {
+				for (var j = 0; j < 2*width; j++) {
 					var x = bx + (j + 1/2)/2 * spaceWidth;
 					var y = by + i * spaceHeight;
 
@@ -930,8 +965,8 @@
 				}
 			}
 
-			for (var i = 1; i < height; i++) {
-				for (var j = 0; j < 2*width; j++) {
+			for (var i = 1; i < width; i++) {
+				for (var j = 0; j < 2*height; j++) {
 					var x = bx + i * spaceHeight;
 					var y = by + (j + 1/2)/2 * spaceWidth;
 
