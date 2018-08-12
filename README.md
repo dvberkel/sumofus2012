@@ -12,7 +12,7 @@ Frameworks
 
 The following frameworks are used in this project.
 
-* [Jasmine](http://pivotal.github.com/jasmine/ "Jasmine GitHub documentation page")
+* [Jasmine](https://jasmine.github.io/ "Jasmine GitHub documentation page")
   is used to provide an test framework.
 * [Backbone](http://backbonejs.org/ "Backbone documentation page")
   is a Model-View-Controller (MVC) framework which will decouple the
